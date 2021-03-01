@@ -1,0 +1,125 @@
+.THIS .item-changed {
+  background-color: #dfe2ff;
+}
+.THIS .hidden-item {
+  display: none;
+}
+.THIS .error-item {
+  color: red;
+}
+
+.THIS .slds-form-element.slds-form-element__label {
+  display: none !important;
+}
+
+.THIS label.slds-form-element__label {
+  display: none !important;
+}
+
+.THIS lightning-input.slds-input {
+  padding: 0;
+  border: none;
+}
+
+.THIS .slds-form-element__control input,
+.THIS .slds-form-element__control select {
+  min-width: 6rem;
+}
+
+.THIS .slds-form-element__control .slds-checkbox {
+  min-width: 4rem;
+  text-align: center;
+}
+
+.THIS .slds-form-element .slds-form-element__control .slds-checkbox [type='checkbox'] + .slds-checkbox__label .slds-checkbox_faux {
+  margin: 0;
+}
+
+.THIS .slds-form-element__control textarea {
+  min-width: 10rem;
+  padding-right: 2rem;
+}
+
+.THIS div.slds-form-element__help {
+  display: none;
+}
+
+.THIS lightning-textarea.slds-input.slds-form-element {
+  border-width: 0px;
+  background: unset;
+  box-shadow: none;
+  line-height: normal;
+}
+
+/* .THIS .slds-has-error .slds-input{
+    border: 1px solid rgb(221, 219, 218) !important;
+    box-shadow: rgb(255, 255, 255) 0 0 0 1px inset !important;
+}
+.THIS .slds-has-error{
+    border: 1px solid rgb(221, 219, 218) !important;
+} */
+
+/* show background color changed */
+.THIS .slds-form-element__control input {
+  background-color: transparent;
+  padding-right: 43px;
+}
+
+/* .THIS .lightning-calendar div.slds-datepicker.slds-dropdown.slds-dropdown_left{
+    max-width: inherit;
+} */
+
+.THIS .rsuix_counter_box {
+  right: 0px;
+  position: absolute;
+  top: 0px;
+  z-index: 9999999;
+}
+
+.THIS .rsuix_counter_button {
+  position: absolute;
+  right: 30px;
+  z-index: 9999999;
+}
+
+.THIS .rsuix_inc_button {
+  top: 0;
+}
+
+.THIS .rsuix_des_button {
+  top: 15px;
+}
+
+.THIS .rsuix_counter:hover .rsuix_counter_box,
+.THIS .rsuix_counter:hover .rsuix_counter_button {
+  z-index: unset;
+}
+
+.THIS .field-label {
+  display: none;
+  color: #666;
+}
+
+.THIS .field-label:empty {
+  display: none !important;
+}
+
+.THIS .field-wrap lightning-textarea.slds-input {
+  padding: 0;
+}
+
+.THIS .field-wrap .slds-form-element__control .slds-radio,
+.THIS .field-wrap .slds-form-element__control .slds-checkbox {
+  text-align: center;
+}
+
+@media all and (max-width: 767px) {
+  .THIS .field-label {
+    display: block;
+    margin: 0.2rem 0;
+  }
+
+  .THIS .field-wrap {
+    margin: 0.2rem 0 0.5rem;
+  }
+}

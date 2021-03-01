@@ -1,0 +1,269 @@
+<aura:component>
+  <aura:attribute name="type" type="String" default="picklist" />
+  <aura:attribute name="subType" type="String" default="text" />
+  <aura:attribute name="formatType" type="String" default="text" />
+  <aura:attribute name="scale" type="Double" default="0" />
+  <aura:attribute name="disabled" type="Boolean" default="false" />
+  <aura:attribute name="class" type="String" />
+  <aura:attribute name="objectFields" type="List" />
+  <aura:attribute
+    name="selectOptions"
+    type="List"
+    default="[{value:' ',label:' '}, {value:'Example',label:'Example'}]"
+  />
+  <aura:attribute name="name" type="String" />
+  <aura:attribute name="label" type="String" />
+  <aura:attribute name="value" type="String" default="Option2" />
+  <aura:attribute name="objectsForLookupField" type="String[]" default="['Contact']" />
+  <aura:attribute name="placeholder" type="String" default="" />
+  <aura:attribute name="debugMode" type="Boolean" default="false" />
+  <aura:attribute name="isLockable" type="Boolean" default="false" />
+  <aura:attribute name="errorMsg" type="String" default="" />
+  <aura:attribute
+    name="isLocked"
+    type="Boolean"
+    default="false"
+    description="Text field is displayed as an input text when false"
+  />
+  <aura:attribute name="isEditable" type="Boolean" default="true" description="Add edit button next to field." />
+  <aura:attribute name="noPicklistMatch" type="Boolean" default="false" />
+  <aura:attribute name="isRequired" type="Boolean" default="false" />
+  <aura:attribute name="rowIndex" type="Integer" default="0" />
+  <aura:attribute name="colIndex" type="Integer" />
+  <aura:attribute name="fieldType" type="String" default="text" />
+
+  <aura:registerEvent name="CommList_EditInputChangeEvent" type="c:CommList_EditInputChangeEvent" />
+
+  <!-- HANDLERS -->
+  <aura:handler name="change" value="{!v.disabled}" action="{!c.refresh}" />
+  <aura:handler name="change" value="{!v.value}" action="{!c.initEditDataForm}" />
+  <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+  <div>
+    <div class="field-label">
+      {!v.label}
+    </div>
+    <div class="field-wrap">
+      <aura:if isTrue="{!or(v.type=='standard', and(v.type=='datetime',v.isLocked))}">
+        <aura:if isTrue="{!v.isLocked}">
+          <div class="lockedContainer wrap">
+            {!v.value}
+            <lightning:buttonIcon
+              iconName="utility:edit"
+              variant="bare"
+              size="medium"
+              alternativeText="less"
+              onclick="{!c.unlock}"
+              class="{!v.isEditable == true ? 'editIcon':'slds-hide'}"
+            />
+          </div>
+          <aura:set attribute="else">
+            <div class="slds-form-element">
+              <div class="{!v.errorMsg ? 'error-item' : 'hidden-item'}">{!v.errorMsg}</div>
+              <div
+                class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right"
+                aura:id="inputContainer"
+              >
+                <aura:if isTrue="{!v.fieldType == 'TEXTAREA'}">
+                  <lightning:textarea
+                    aura:id="myStandardInput"
+                    class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+                    value="{!v.value}"
+                    onchange="{!c.onChange}"
+                    placeholder="{!v.placeholder}"
+                    required="{!v.isRequired}"
+                    onblur="{!c.lostFocus}"
+                  />
+                  <aura:set attribute="else">
+                    <aura:if isTrue="{!v.subType == 'number'}">
+                      <!-- <div class="slds-form-element">
+                        <div class="slds-form-element__control">
+                            <input type="number" aura:id="myStandardInput"  required="{!v.isRequired}" value="{!v.value}" onchange="{!c.onChange}"
+                            placeholder="{!v.placeholder}" formatter="{!v.formatType}" step="{!v.scale}" onblur="{!c.lostFocus}" onkeyup="{!c.handleInputNumber}"
+                            class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }" />
+                        </div>
+                    </div> -->
+                      <div onkeydown="{!c.handleKeyUp }">
+                        <lightning:input
+                          aura:id="myStandardInput"
+                          class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+                          value="{!v.value}"
+                          type="{!v.subType}"
+                          onchange="{!c.handleInputNumber}"
+                          oncommit="{!c.onCommitNumber}"
+                          onblur="{!c.lostFocus}"
+                          placeholder="{!v.placeholder}"
+                          formatter="{!v.formatType}"
+                          step="{!v.scale}"
+                          required="{!v.isRequired}"
+                        />
+                        <div class="rsuix_counter_box">
+                          <lightning:buttonIcon
+                            class="rsuix_counter_button rsuix_inc_button"
+                            iconName="utility:up"
+                            onclick="{!c.counter_inc}"
+                            size="small"
+                            variant="bare"
+                          />
+                          <lightning:buttonIcon
+                            class="rsuix_counter_button rsuix_des_button"
+                            iconName="utility:down"
+                            onclick="{!c.counter_desc}"
+                            size="small"
+                            variant="bare"
+                          />
+                        </div>
+                      </div>
+                      <aura:set attribute="else">
+                        <lightning:input
+                          aura:id="myStandardInput"
+                          class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+                          value="{!v.value}"
+                          type="{!v.subType}"
+                          onchange="{!c.onChange}"
+                          placeholder="{!v.placeholder}"
+                          formatter="{!v.formatType}"
+                          step="{!v.scale}"
+                          required="{!v.isRequired}"
+                        />
+                      </aura:set>
+                    </aura:if>
+                  </aura:set>
+                </aura:if>
+                <aura:if
+                  isTrue="{!and(and(not(empty(v.value)), not(v.subType == 'date')), not(v.subType == 'datetime-local'))}"
+                >
+                  <button
+                    class="slds-button slds-button_icon slds-input__icon slds-input__icon_right slds-input__icon_padding"
+                    title="Clear"
+                    onclick="{!c.clearText}"
+                  >
+                    <lightning:icon
+                      iconName="utility:clear"
+                      size="x-small"
+                      alternativeText="Clear"
+                      class="slds-button__icon slds-icon-text-light"
+                    />
+                  </button>
+                </aura:if>
+              </div>
+            </div>
+          </aura:set>
+        </aura:if>
+      </aura:if>
+
+      <aura:if isTrue="{!v.type=='picklist'}">
+        <div class="slds-form-element">
+          <div class="slds-form-element__control">
+            <div class="slds-select_container" aura:id="inputContainer">
+              <lightning:select
+                name="select1"
+                aura:id="myPicklist"
+                required="{!v.isRequired}"
+                onchange="{!c.onChange}"
+                disabled="{!v.isLocked}"
+                value="{!v.value}"
+              >
+                <aura:if isTrue="{!v.noPicklistMatch}">
+                  <option value="{!v.value}" selected="true" disabled="true">{!v.value}</option>
+                </aura:if>
+                <aura:iteration items="{!v.selectOptions}" var="option">
+                  <option value="{!option.value}" selected="{!option.value == v.value ? 'true':'false'}"
+                    >{!option.label}</option
+                  >
+                </aura:iteration>
+              </lightning:select>
+            </div>
+          </div>
+        </div>
+      </aura:if>
+      <aura:if isTrue="{!v.type=='multipicklist'}">
+        <div class="slds-form-element">
+          <div class="slds-form-element__control">
+            <div class="slds-select_container" aura:id="inputContainer">
+              <c:CommList_MultiSelect options="{!v.selectOptions}" selectedItems="{!v.value}" />
+            </div>
+          </div>
+        </div>
+      </aura:if>
+      <aura:if isTrue="{!v.type=='checkbox'}">
+        <div class="slds-form-element">
+          <div class="slds-form-element__control" aura:id="inputContainer">
+            <lightning:input
+              type="checkbox"
+              label="no label"
+              variant="label-hidden"
+              name="options"
+              checked="{!v.value}"
+              onchange="{!c.onChange}"
+              disabled="{!v.isLocked}"
+            />
+          </div>
+        </div>
+      </aura:if>
+      <aura:if isTrue="{!and(v.type=='datetime', !v.isLocked)}">
+        <div class="slds-form-element">
+          <div class="slds-form-element__control" aura:id="inputContainer">
+            <lightning:input
+              aura:id="myStandardInput"
+              class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+              type="datetime-local"
+              label="no label"
+              value="{!v.value}"
+              variant="label-hidden"
+              onchange="{!c.onChange}"
+              required="{!v.isRequired}"
+              disabled="{!v.isLocked}"
+            />
+          </div>
+        </div>
+      </aura:if>
+      <aura:if isTrue="{!v.type=='time'}">
+        <div class="slds-form-element">
+          <div class="slds-form-element__control" aura:id="inputContainer">
+            <lightning:input
+              aura:id="myStandardInput"
+              class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+              type="time"
+              label="no label"
+              value="{!v.value}"
+              variant="label-hidden"
+              onchange="{!c.onChange}"
+              required="{!v.isRequired}"
+              disabled="{!v.isLocked}"
+            />
+          </div>
+        </div>
+      </aura:if>
+      <aura:if isTrue="{!v.type=='calculated'}">
+        <div class="slds-form-element">
+          <div class="slds-form-element__control" aura:id="inputContainer">
+            <lightning:icon
+              iconName="utility:apex"
+              size="small"
+              alternativeText="Calculated field (not editable)"
+              class="slds-align_absolute-center"
+            />
+          </div>
+        </div>
+      </aura:if>
+
+      <aura:if isTrue="{!v.type=='lookup'}">
+        <div aura:id="inputContainer">
+          <c:CommList_EditRL_LookupFieldCmp
+            objectsToSearch="{!v.objectsForLookupField}"
+            selectedItemId="{!v.value}"
+            disabled="{!v.isLocked}"
+            isRequired="{!v.isRequired}"
+          />
+        </div>
+      </aura:if>
+
+      <aura:if isTrue="{!v.type=='undefined'}">
+        <div class="slds-form-element wrap">
+          {!v.value}
+        </div>
+      </aura:if>
+    </div>
+  </div>
+</aura:component>

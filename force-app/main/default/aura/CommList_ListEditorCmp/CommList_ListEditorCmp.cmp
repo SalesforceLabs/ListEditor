@@ -1,0 +1,127 @@
+<aura:component
+  access="global"
+  controller="CommList_RelatedListEditorCC"
+  implements="force:hasRecordId,forceCommunity:availableForAllPageTypes"
+>
+  <aura:attribute type="Id" name="recordId" />
+  <aura:attribute type="String" name="objectName" access="global" default="Account" />
+  <aura:attribute type="String" name="sObjectName" access="global" default="Account" />
+  <aura:attribute type="String" name="fields" access="global" default="Id,Name" />
+  <aura:attribute type="List" name="recordList" access="global" default="[]" />
+  <aura:attribute type="List" name="recordTypes" default="[]" />
+  <aura:attribute type="Integer" name="viewRowsToLoad" access="global" default="10" />
+  <aura:attribute type="String" name="parentField" access="global" />
+  <aura:attribute type="List" name="parentFieldList" />
+  <aura:attribute type="Boolean" name="hasMoreRecord" default="false" />
+  <aura:attribute type="String" name="conditionsFilterList" access="global" default="" />
+  <aura:attribute type="String" name="searchText" />
+  <aura:attribute type="String" name="defaultValueAddList" access="global" default="{}" />
+  <aura:attribute type="String" name="defaultLabel" access="global" default="" />
+  <aura:attribute type="Boolean" name="enableEditMode" access="global" default="false" />
+  <aura:attribute type="Boolean" name="isEditMode" default="false" />
+  <aura:attribute type="Boolean" name="enableAddMode" access="global" default="false" />
+  <aura:attribute type="Boolean" name="enableRefresh" access="global" default="false" />
+  <aura:attribute type="Boolean" name="enableSearchArea" access="global" default="false" />
+  <aura:attribute type="Boolean" name="enableRecordAction" access="global" default="false" />
+  <aura:attribute type="Boolean" name="enableDltBtnInEdit" access="global" default="false" />
+  <aura:attribute type="Boolean" name="isHaveNoError" default="true" />
+  <aura:attribute type="Map" name="filterFields" />
+  <aura:attribute type="Boolean" name="isOrderDESC" access="global" default="true" />
+  <aura:attribute type="String" name="orderField" access="global" />
+  <aura:attribute type="boolean" name="isScrollable" default="false" />
+  <aura:attribute type="boolean" name="isHaveOrderField" default="false" />
+  <aura:attribute type="String" name="orderFieldAPI" default="" />
+  <aura:attribute type="Map" name="relatedList" description="a single RL" />
+  <aura:attribute type="Map" name="records" description="records pulled from apex" />
+  <aura:attribute type="Map" name="deleteRecords" description="delete records from edit form" />
+  <aura:attribute type="String" name="title" default="Comm List" />
+  <aura:attribute type="Boolean" name="displayPicklistAsText" default="false" />
+  <aura:attribute type="Boolean" name="isLoading" default="false" />
+  <aura:attribute type="Integer" name="loadMoreOffset" default="0" />
+  <aura:attribute type="String" name="iconFillColor" access="global" />
+  <aura:attribute type="String" name="iconBgColor" access="global" />
+  <aura:attribute type="String" name="iconCategory" access="global" />
+  <aura:attribute type="String" name="iconPattern" access="global" />
+  <aura:attribute type="String" name="brandBgColor" access="global" />
+  <aura:attribute type="String" name="brandTxtColor" access="global" />
+  <aura:attribute type="String" name="brandRowColor" access="global" />
+
+  <aura:handler name="switchMode" event="c:CommList_SwitchModeEvent" action="{!c.switchMode}" />
+  <aura:handler name="refreshRecordList" event="c:CommList_RefreshRecordListEvent" action="{!c.reloadAction}" />
+  <aura:handler name="searchRecordEvent" event="c:CommList_EditorFilterEvent" action="{!c.searchRecordList}" />
+  <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+  <aura:handler event="force:refreshView" action="{!c.reloadAction}" />
+  <aura:handler name="change" value="{!v.isOrderDESC}" action="{!c.sortChangeRecordList}" />
+  <aura:handler name="change" value="{!v.orderField}" action="{!c.sortChangeRecordList}" />
+
+  <div aura:id="ListEditorWrapper" class="ListEditorWrapper">
+    <div aura:id="listEditorWrapper"></div>
+
+    <c:CommList_ListEditorViewMode
+      objectName="{!v.objectName}"
+      recordList="{!v.recordList}"
+      fields="{!v.fields}"
+      recordId="{!v.recordId}"
+      parentObject="{!v.sObjectName}"
+      parentList="{!v.parentFieldList}"
+      parentField="{!v.parentField}"
+      hasMoreRecord="{!v.hasMoreRecord}"
+      defaultLabel="{!v.defaultLabel}"
+      enableEditMode="{!v.enableEditMode}"
+      defaultValueAddList="{!v.defaultValueAddList}"
+      enableAddMode="{!v.enableAddMode}"
+      enableRefresh="{!v.enableRefresh}"
+      enableSearchArea="{!v.enableSearchArea}"
+      enableRecordAction="{!v.enableRecordAction}"
+      isHaveNoError="{!v.isHaveNoError}"
+      recordTypes="{!v.recordTypes}"
+      conditionsFilterList="{!v.conditionsFilterList}"
+      isEditMode="{!v.isEditMode}"
+      orderField="{!v.orderField}"
+      isOrderDESC="{!v.isOrderDESC}"
+      iconCategory="{!v.iconCategory}"
+      iconPattern="{!v.iconPattern}"
+    />
+
+    <aura:if isTrue="{!v.hasMoreRecord}">
+      <div class="viewAll">
+        <a onclick="{!c.loadMoreData}">{!format($Label.c.CommList_LoadMore)}</a>
+      </div>
+    </aura:if>
+
+    <aura:renderIf isTrue="{!v.isEditMode}">
+      <div>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open slds-modal_large">
+          <c:CommList_ListEditorEditMode
+            objectName="{!v.objectName}"
+            aura:id="CommList_ListEditorEditMode"
+            recordList="{!v.recordList}"
+            relatedList="{!v.relatedList}"
+            title="{!v.title}"
+            recordId="{!v.recordId}"
+            showFields="{!v.fields}"
+            parentObject="{!v.sObjectName}"
+            parentField="{!v.parentField}"
+            hasMoreRecord="{!v.hasMoreRecord}"
+            defaultValueAddList="{!v.defaultValueAddList}"
+            defaultLabel="{!v.defaultLabel}"
+            conditionsFilterList="{!v.conditionsFilterList}"
+            filterFields="{!v.filterFields}"
+            isEditMode="{!v.isEditMode}"
+            isScrollable="{!v.isScrollable}"
+            isHaveOrderField="{!v.isHaveOrderField}"
+            orderField="{!v.orderFieldAPI}"
+            sortField="{!v.orderField}"
+            enableDltBtnInEdit="{!v.enableDltBtnInEdit}"
+            isOrderDESC="{!v.isOrderDESC}"
+            isLoading="{!v.isLoading}"
+            loadMoreDataAction="{!c.loadMoreData}"
+            iconCategory="{!v.iconCategory}"
+            iconPattern="{!v.iconPattern}"
+          />
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+      </div>
+    </aura:renderIf>
+  </div>
+</aura:component>

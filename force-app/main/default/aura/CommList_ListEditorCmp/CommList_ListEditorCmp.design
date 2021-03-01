@@ -1,0 +1,23 @@
+<design:component label="Comm List">
+  <design:attribute name="objectName" label="オブジェクト" description="API name of the Object you want to show data." required="true" />
+  <design:attribute name="fields" label="表示項目" description="API name of the columns you want to display." required="true" />
+  <design:attribute name="orderField" label="デフォルトのソート項目" />
+  <design:attribute name="isOrderDESC" label="降順でソート" default="true" />
+  <!-- <design:attribute name='isScrollable' label='Scrollable' default='true'/> -->
+  <design:attribute name="viewRowsToLoad" label="表示行数" description="API name of the row you want to display in View mode." required="true" />
+  <design:attribute name="parentField" label="親参照項目名(オプション)" description="API name of the default parent field you want to select from child Object" required="false" />
+  <design:attribute name="conditionsFilterList" label="リストの絞り込み条件(SOQL filter)" description="(例：Name='abc' AND Email= 'abc@bvc.com' OR Amount > 1000)" required="false" />
+  <design:attribute name="defaultValueAddList" label="項目ごとのデフォルト値(json形式)" description='(例：{"Name":"abc","IsKeyman__c":true,"CategoryPickList__c":"「api_name」"})' required="false" />
+  <design:attribute name="defaultLabel" label="リストの表示ラベル名" description="Default label related list" required="false" />
+  <design:attribute name="enableEditMode" label="編集を許可しない" description="If selected will hide button edit on component related list" />
+  <design:attribute name="enableAddMode" label="新規作成を許可しない" description="If selected will hide button add on component related list" />
+  <design:attribute name="enableRefresh" label="リロードを許可しない" description="If selected will hide button refresh on component related list" />
+  <design:attribute name="enableSearchArea" label="テキスト検索を許可しない" description="If selected will hide input search on component related list" />
+  <design:attribute name="enableRecordAction" label="レコードアクションを許可しない" description="If selected will hide button recordAction on component record column" />
+  <design:attribute name="enableDltBtnInEdit" label="編集画面で削除を許可しない" description="If selected will hide button delete on component Edit view" />
+  <design:attribute name="brandBgColor" label="見出し背景色" description="" />
+  <design:attribute name="brandTxtColor" label="見出し文字色" description="" />
+  <design:attribute name="brandRowColor" label="偶数行の背景色" description="" />
+  <design:attribute name="iconFillColor" label="アイコンカラー" description="" />
+  <design:attribute name="iconBgColor" label="アイコン背景色" description="" />
+</design:component>

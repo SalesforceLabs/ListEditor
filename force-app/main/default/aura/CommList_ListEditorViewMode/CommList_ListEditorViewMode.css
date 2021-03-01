@@ -1,0 +1,213 @@
+.THIS .input-group .lightningInput {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.THIS .slds-card__header {
+  padding: 0;
+  font-weight: bold;
+  display: block;
+  overflow: hidden;
+  margin-top: -8px;
+}
+
+.THIS .slds-card__header > *:first-child {
+  float: left;
+  margin-top: 12px;
+}
+
+.THIS .slds-card__header > *:last-child {
+  float: right;
+}
+
+.THIS .slds-card__header .slds-truncate {
+  overflow: visible;
+}
+
+.THIS .slds-card__header .slds-no-flex {
+  margin-left: auto;
+  flex: 0 1 auto;
+  margin-top: 8px;
+}
+
+.THIS .slds-card__header .count {
+  white-space: nowrap;
+}
+
+.THIS .slds-card__header .header-label {
+  margin-right: 0.25rem;
+}
+
+.THIS .slds-card__header .slds-col .slds-button {
+  white-space: nowrap;
+  background: #fff;
+}
+
+.THIS .icon {
+  margin-right: 0.75rem;
+}
+
+.THIS.bound-border {
+  border: 1px solid rgb(221, 219, 218) !important;
+  border-radius: 8px;
+  overflow: hidden;
+  padding-top: 10px;
+  background: rgb(255, 255, 255);
+}
+
+.THIS.bound-border.hasMoreRecord {
+  border-radius: 8px 8px 0 0;
+}
+
+.THIS.bound-border .header .slds-card {
+  border: none;
+  box-shadow: none;
+  /*padding: 0 15px 0 15px !important;*/
+}
+
+.THIS .datatable .slds-cell-fixed {
+  border-top: 1px solid rgb(221, 219, 218) !important;
+  border-bottom: 1px solid rgb(221, 219, 218) !important;
+  font-weight: 700;
+}
+.THIS .datatable table,
+.THIS .datatable table > thead,
+.THIS .datatable table > tbody {
+  width: 100% !important;
+  border: 0;
+}
+
+.THIS lightning-formatted-email a lightning-icon {
+  display: none;
+}
+
+.THIS .parentListDDL div {
+  display: inline-block;
+}
+
+.THIS .parentListDDL {
+  float: right;
+  margin-bottom: 20px;
+}
+
+.THIS .clearfix {
+  clear: both;
+}
+
+.THIS .titleBlur {
+  filter: blur(3px);
+}
+
+.THIS .header {
+  padding: 0px 15px;
+}
+
+.THIS .slds-card__header .slds-truncate h2 > span > div {
+  white-space: normal;
+  display: flex;
+  align-items: center;
+  word-break: break-all;
+  margin-right: 0.5rem;
+}
+
+.THIS .slds-card__header .slds-truncate h2 > span > div .slds-icon_container {
+  margin-bottom: auto;
+}
+
+/*.THIS .slds-scrollable_x { overflow: visible; }*/
+
+/**/
+
+@media all and (max-width: 767px) {
+  .THIS .slds-scrollable_x,
+  .THIS .slds-scrollable_y {
+    width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .THIS .slds-table_header-fixed_container {
+    padding-top: 0;
+  }
+
+  .THIS .slds-table thead {
+    display: none !important;
+  }
+
+  .THIS .slds-table tbody tr {
+    display: block;
+    position: relative;
+  }
+
+  .THIS .slds-table tbody tr > th + td,
+  .THIS .slds-table tbody tr > th + th,
+  .THIS .slds-table tbody tr > td + th,
+  .THIS .slds-table tbody tr > td + td {
+    border-top: 0;
+    padding-top: 0;
+  }
+
+  .THIS .slds-table tbody .slds-truncate {
+    white-space: normal;
+  }
+
+  .THIS .slds-table tbody td,
+  .THIS .slds-table tbody th {
+    display: flex;
+    width: 100%;
+    box-shadow: none !important;
+  }
+
+  .THIS .slds-table tbody th {
+    flex-basis: 70%;
+  }
+
+  .THIS .slds-table tbody td {
+    flex-basis: 30%;
+  }
+
+  .THIS .slds-table tbody td:before,
+  .THIS .slds-table tbody th:before {
+    content: attr(data-label);
+    display: inline-block;
+    width: 25%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #666;
+  }
+
+  .THIS .slds-table tbody td > *:last-child,
+  .THIS .slds-table tbody th > *:last-child {
+    width: calc(75% - 1.75rem);
+    overflow: hidden;
+    word-break: break-all;
+    padding-left: 0.5rem;
+  }
+
+  .THIS .slds-table tbody tr > th:not([data-label]):last-child,
+  .THIS .slds-table tbody tr > td:not([data-label]):last-child {
+    position: absolute;
+    display: block;
+    width: auto;
+    height: auto;
+    right: 0;
+    top: 0;
+    padding: 0.5rem;
+    margin: 0;
+    z-index: 1;
+    background: none !important;
+  }
+
+  .THIS .slds-table tbody tr > th:not([data-label]):last-child:before,
+  .THIS .slds-table tbody tr > td:not([data-label]):last-child:before {
+    display: none;
+  }
+
+  .THIS .slds-table tbody tr > th:not([data-label]):last-child > *:last-child,
+  .THIS .slds-table tbody tr > td:not([data-label]):last-child > *:last-child {
+    padding: 0;
+    margin: 0;
+    width: auto;
+    height: auto;
+    display: block;
+  }
+}

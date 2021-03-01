@@ -1,0 +1,19 @@
+@media (min-width: 10em) and (max-width: 48em) {
+  .THIS .custom-static-position-small-screens {
+    position: static !important;
+  }
+}
+
+.THIS .slds-lookup__menu {
+  padding: 0.15rem 0 !important;
+}
+
+.THIS .slds-lookup__active {
+  background-color: #f3f2f2;
+}
+
+.THIS lightning-icon.slds-icon--small.slds-icon-standard-case.slds-icon_container.search {
+  float: left;
+  margin-right: 0.25rem;
+  margin-top: 0.5rem;
+}

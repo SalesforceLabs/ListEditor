@@ -1,0 +1,20 @@
+<aura:component>
+  <aura:attribute type="String" name="searchText" access="global" default="" />
+  <aura:registerEvent name="searchRecordEvent" type="c:CommList_EditorFilterEvent" />
+
+  <div class="search-wrapper">
+    <span onkeyup="{! c.setSearchValue }">
+      <lightning:input
+        aura:id="searchText"
+        type="search"
+        name="searchText"
+        label="Search"
+        value="{! v.searchText }"
+        variant="label-hidden"
+        placeholder=""
+        autocomplete="false"
+        oncommit="{! c.searchRecord }"
+      />
+    </span>
+  </div>
+</aura:component>

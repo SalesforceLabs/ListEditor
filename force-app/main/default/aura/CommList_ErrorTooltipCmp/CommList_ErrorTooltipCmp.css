@@ -1,0 +1,15 @@
+.THIS .infoTip {
+  display: none;
+}
+
+.THIS .infoIcon:hover + .infoTip {
+  display: inline-block;
+}
+
+.THIS .leftSide {
+  right: -15px;
+}
+
+.THIS .rightSide {
+  left: -15px;
+}

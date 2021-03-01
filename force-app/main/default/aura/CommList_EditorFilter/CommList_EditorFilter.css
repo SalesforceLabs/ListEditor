@@ -1,0 +1,10 @@
+.THIS.search-wrapper {
+  color: #666;
+  font-weight: normal;
+}
+
+.THIS input {
+  width: 100%;
+  max-width: 100%;
+  min-width: auto;
+}

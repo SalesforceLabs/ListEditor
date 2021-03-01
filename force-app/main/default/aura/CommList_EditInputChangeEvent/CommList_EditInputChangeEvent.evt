@@ -1,0 +1,6 @@
+<aura:event type="APPLICATION" description="Event template">
+  <aura:attribute name="fieldName" type="String" description="changed field" />
+  <aura:attribute name="fieldType" type="String" description="fieldType" />
+  <aura:attribute name="rowIndex" type="Integer" description="row Index" />
+  <aura:attribute name="newValue" type="String" description="newValue" />
+</aura:event>

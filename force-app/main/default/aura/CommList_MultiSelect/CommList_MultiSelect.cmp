@@ -1,0 +1,47 @@
+<aura:component>
+  <aura:attribute name="options" type="Object[]" default="[]" />
+  <aura:attribute name="selectedItems" type="String" default="" />
+  <aura:attribute name="dropdownOver" type="Boolean" default="false" />
+  <aura:attribute name="isInit" type="Boolean" default="true" />
+
+  <aura:registerEvent name="CommList_EditInputChangeEvent" type="c:CommList_EditInputChangeEvent" />
+
+  <div class="slds-form-element">
+    <div class="slds-form-element__control">
+      <div class="slds-combobox_container">
+        <div aura:id="main-div" class="slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click" aria-expanded="false" aria-haspopup="listbox" role="combobox">
+          <div class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right" role="none">
+            <input
+              type="text"
+              class="slds-input slds-combobox__input"
+              id="combobox-id-1"
+              aria-controls="listbox-id-1"
+              autoComplete="off"
+              role="textbox"
+              readonly=""
+              onclick="{!c.handleClick}"
+              onmouseleave="{!c.handleMouseOutButton}"
+              placeholder="{!v.selectedItems}"
+            />
+          </div>
+          <div class="slds-dropdown  slds-dropdown_fluid slds-dropdown_length-10" onmouseenter="{!c.handleMouseEnter}" onmouseleave="{!c.handleMouseLeave}" role="listbox">
+            <ul class="slds-listbox slds-listbox_vertical" role="presentation">
+              <aura:iteration items="{!v.options}" var="option">
+                <li class="slds-listbox__item" role="presentation" onclick="{!c.handleSelection}" data-value="{!option.value}" data-selected="{!option.selected}">
+                  <div class="{!' slds-media  slds-listbox__option_plain slds-media_small slds-listbox__option ' + (option.selected == true ? ' slds-is-selected' : '')}" role="option">
+                    <span class="slds-media__figure">
+                      <lightning:icon iconName="utility:check" size="x-small" class="slds-icon-utility-check slds-current-color slds-listbox__icon-selected slds-icon_container" />
+                    </span>
+                    <span class="slds-media__body">
+                      <span class="slds-truncate" title="{!option.label}">&nbsp;{!option.label}</span>
+                    </span>
+                  </div>
+                </li>
+              </aura:iteration>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</aura:component>

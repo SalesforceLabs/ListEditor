@@ -1,0 +1,4 @@
+<aura:event type="COMPONENT" description="Event template">
+  <aura:attribute name="parentField" type="String" description="parent field name" />
+  <aura:attribute name="type" type="String" description="set refresh type" />
+</aura:event>
