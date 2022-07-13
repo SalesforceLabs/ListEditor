@@ -24,7 +24,7 @@
     action.setAbortable();
 
     // Set the parameters
-    action.setParams({searchString: searchString, objectsToSearch: objectsToSearch});
+    action.setParams({ searchString: searchString, objectsToSearch: objectsToSearch });
 
     // Define the callback
     action.setCallback(this, function(response) {
@@ -56,7 +56,7 @@
       cmp.set('v.searchMessage', '"' + searchString + '" in ' + objname);
     } else {
       cmp.set('v.matches', null);
-      cmp.set('v.searchMessage', '2文字以上を入力してください');
+      cmp.set('v.searchMessage', $A.get('$Label.c.CommList_SearchHelp'));
     }
   },
 
@@ -105,7 +105,7 @@
       return;
     }
     var action = cmp.get('c.getRecordName');
-    action.setParams({recordId: objectId, objectsToSearch: objectsToSearch});
+    action.setParams({ recordId: objectId, objectsToSearch: objectsToSearch });
 
     action.setCallback(this, function(response) {
       var state = response.getState();
@@ -204,7 +204,7 @@
       //fire the toast event in Salesforce1
       toast.setParams({
         title: title,
-        message: message,
+        message: message
       });
 
       toast.fire();
@@ -237,5 +237,5 @@
   firechangedValuesEvent: function() {
     var fieldChangedEvent = $A.get('e.c:CommList_EditInputChangeEvent');
     fieldChangedEvent.fire();
-  },
+  }
 });

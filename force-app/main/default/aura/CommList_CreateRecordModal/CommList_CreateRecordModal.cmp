@@ -3,7 +3,7 @@
   <aura:attribute name="isOpen" type="boolean" />
   <div>
     <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open  slds-modal_small">
-      <div class="slds-modal__container" style="width:50%">
+      <div class="slds-modal__container createRecordModal-wrapper">
         <header class="slds-modal__header">
           <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModal }" alternativeText="close" variant="bare-inverse" class="slds-modal__close" />
           <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">{!v.objectApiName}</h2>

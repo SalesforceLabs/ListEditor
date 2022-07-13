@@ -33,10 +33,10 @@
         <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">
           <lightning:icon iconName="utility:search" size="x-small" alternativeText="Search" class="slds-input__icon" />
           <!-- This markup is for when an item is currently selected -->
-          <div aura:id="lookup-pill" class="slds-pill-container slds-hide" style="{!v.disabled ? 'background-color:rgb(243,242,242);' : 'background-color:white;'}">
-            <span class="slds-pill slds-pill--bare" style="width:100%;">
+          <div aura:id="lookup-pill" class="slds-pill-container slds-hide lookField-pill">
+            <span class="slds-pill slds-pill--bare">
               <span class="slds-pill__label"> <lightning:icon iconName="{!v.iconName}" size="small" alternativeText="" class="slds-icon--small" />&nbsp;&nbsp;{!v.searchString} </span>
-              <button type="button" class="{!v.disabled ? 'slds-hide' : 'slds-button slds-button--icon-bare'}" onclick="{!c.clear}" style="margin-bottom:2px;margin-left:2px">
+              <button type="button" aura:id="lookField-pill_button" class="slds-button slds-button--icon-bare lookField-pill_button" onclick="{!c.clear}">
                 <lightning:icon iconName="utility:close" size="x-small" alternativeText="Search" class="slds-button__icon" />
                 <span class="slds-assistive-text">Remove</span>
               </button>

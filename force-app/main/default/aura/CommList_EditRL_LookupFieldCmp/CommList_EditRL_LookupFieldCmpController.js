@@ -30,6 +30,15 @@
     cmp.set('v.prevSelectedItemId', cmp.get('v.selectedItemId'));
   },
   initLookup: function(cmp, event, helper) {
+    const isDisabled = cmp.get('v.disabled');
+    const lookupPill = cmp.find('lookup-pill');
+    const pillButton = cmp.find('lookField-pill_button');
+
+    if (isDisabled) {
+      $A.util.addClass(lookupPill, 'disabled');
+      $A.util.addClass(pillButton, 'slds-hide');
+    }
+
     helper.handleInitialSelection(cmp);
   },
   inputBlur: function(cmp, event, helper) {
@@ -56,5 +65,5 @@
         helper.setSelectedValueAndCloseSearchResultPanel(component, selectedItem.recId, selectedItem.recLabel, selectedItem.objectIcon);
       }
     }
-  },
+  }
 });

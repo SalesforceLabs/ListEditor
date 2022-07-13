@@ -1,4 +1,5 @@
-.THIS .item-changed {
+.THIS .item-changed,
+.THIS .item-changed select {
   background-color: #dfe2ff;
 }
 .THIS .hidden-item {
@@ -51,35 +52,21 @@
   line-height: normal;
 }
 
-/* .THIS .slds-has-error .slds-input{
-    border: 1px solid rgb(221, 219, 218) !important;
-    box-shadow: rgb(255, 255, 255) 0 0 0 1px inset !important;
-}
-.THIS .slds-has-error{
-    border: 1px solid rgb(221, 219, 218) !important;
-} */
-
 /* show background color changed */
 .THIS .slds-form-element__control input {
   background-color: transparent;
   padding-right: 43px;
 }
 
-/* .THIS .lightning-calendar div.slds-datepicker.slds-dropdown.slds-dropdown_left{
-    max-width: inherit;
-} */
-
 .THIS .rsuix_counter_box {
   right: 0px;
   position: absolute;
   top: 0px;
-  z-index: 9999999;
 }
 
 .THIS .rsuix_counter_button {
   position: absolute;
   right: 30px;
-  z-index: 9999999;
 }
 
 .THIS .rsuix_inc_button {

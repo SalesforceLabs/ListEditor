@@ -1,13 +1,14 @@
 <aura:component
   access="global"
   controller="CommList_RelatedListEditorCC"
-  implements="force:hasRecordId,forceCommunity:availableForAllPageTypes"
+  implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes"
 >
   <aura:attribute type="Id" name="recordId" />
   <aura:attribute type="String" name="objectName" access="global" default="Account" />
   <aura:attribute type="String" name="sObjectName" access="global" default="Account" />
   <aura:attribute type="String" name="fields" access="global" default="Id,Name" />
   <aura:attribute type="List" name="recordList" access="global" default="[]" />
+  <aura:attribute type="List" name="originalRecordList" default="[]" />
   <aura:attribute type="List" name="recordTypes" default="[]" />
   <aura:attribute type="Integer" name="viewRowsToLoad" access="global" default="10" />
   <aura:attribute type="String" name="parentField" access="global" />
@@ -45,14 +46,25 @@
   <aura:attribute type="String" name="brandBgColor" access="global" />
   <aura:attribute type="String" name="brandTxtColor" access="global" />
   <aura:attribute type="String" name="brandRowColor" access="global" />
+  <aura:attribute type="String" name="imageMaxWidth" access="global" />
+  <aura:attribute type="String" name="imageMaxHeight" access="global" />
+  <aura:attribute type="String" name="imageMinWidth" access="global" />
+  <aura:attribute type="String" name="imageMinHeight" access="global" />
+  <aura:attribute type="Object" name="selectedRows" access="global" />
+  <aura:attribute type="List" name="selectedRowIds" access="global" />
+  <aura:attribute type="Object" name="margeSelectedRows" access="global" />
+  <aura:attribute type="String" name="flowName" access="global" />
+  <aura:attribute type="List" name="flowItem" access="global" />
 
   <aura:handler name="switchMode" event="c:CommList_SwitchModeEvent" action="{!c.switchMode}" />
   <aura:handler name="refreshRecordList" event="c:CommList_RefreshRecordListEvent" action="{!c.reloadAction}" />
   <aura:handler name="searchRecordEvent" event="c:CommList_EditorFilterEvent" action="{!c.searchRecordList}" />
+  <aura:handler name="loadMoreAction" event="c:CommList_LoadMoreEvent" action="{!c.loadMoreData}" />
   <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
   <aura:handler event="force:refreshView" action="{!c.reloadAction}" />
   <aura:handler name="change" value="{!v.isOrderDESC}" action="{!c.sortChangeRecordList}" />
   <aura:handler name="change" value="{!v.orderField}" action="{!c.sortChangeRecordList}" />
+  <aura:handler name="change" value="{!v.isEditMode}" action="{!c.resetDataList}" />
 
   <div aura:id="ListEditorWrapper" class="ListEditorWrapper">
     <div aura:id="listEditorWrapper"></div>
@@ -69,6 +81,10 @@
       defaultLabel="{!v.defaultLabel}"
       enableEditMode="{!v.enableEditMode}"
       defaultValueAddList="{!v.defaultValueAddList}"
+      selectedRows="{! v.selectedRows }"
+      selectedRowIds="{! v.selectedRowIds }"
+      margeSelectedRows="{! v.margeSelectedRows }"
+      flowItem="{! v.flowItem }"
       enableAddMode="{!v.enableAddMode}"
       enableRefresh="{!v.enableRefresh}"
       enableSearchArea="{!v.enableSearchArea}"
@@ -81,6 +97,8 @@
       isOrderDESC="{!v.isOrderDESC}"
       iconCategory="{!v.iconCategory}"
       iconPattern="{!v.iconPattern}"
+      imageMaxHeight="{!v.imageMaxHeight}"
+      imageMaxWidth="{!v.imageMaxWidth}"
     />
 
     <aura:if isTrue="{!v.hasMoreRecord}">
@@ -115,7 +133,6 @@
             enableDltBtnInEdit="{!v.enableDltBtnInEdit}"
             isOrderDESC="{!v.isOrderDESC}"
             isLoading="{!v.isLoading}"
-            loadMoreDataAction="{!c.loadMoreData}"
             iconCategory="{!v.iconCategory}"
             iconPattern="{!v.iconPattern}"
           />

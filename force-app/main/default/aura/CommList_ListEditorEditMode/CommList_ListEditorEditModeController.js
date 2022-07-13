@@ -2,6 +2,7 @@
   reloadData: function(component, event, helper) {
     let spinner = component.find('loadingSpinner');
     $A.util.removeClass(spinner, 'slds-hide');
+    const isUnsavedRecords = component.get('v.isUnsavedRecords');
 
     // Load data related list:
     let objectName = component.get('v.objectName');
@@ -12,12 +13,14 @@
     // Get related infor and setting data in grid
     helper.getRelatedListForEdit(component, objectName, fields, sObjectName, parentField, helper, event);
     helper.getOrderFieldWithPrefix(component, objectName);
-    component.set('v.isUnsavedRecords', false);
+    component.set('v.isUnsavedRecords', isUnsavedRecords);
   },
   refreshEditMode: function(component, event, helper) {
     let spinner = component.find('loadingSpinner');
     $A.util.removeClass(spinner, 'slds-hide');
+
     // Reset all mode(tab, text)
+    component.set('v.editedRecordList', null);
     component.set('v.displayPicklistAsText', false);
     let relatedList = component.get('v.relatedList');
     let records = component.get('v.recordList');
@@ -29,15 +32,9 @@
     let defaultObjectLabel = component.get('v.defaultLabel');
 
     if (defaultObjectLabel !== '') {
-      component.set(
-        'v.title',
-        '<span class="header-label">' + defaultObjectLabel + '</span><span class="count">(' + lblRecShow + ')</span>'
-      );
+      component.set('v.title', '<span class="header-label">' + defaultObjectLabel + '</span><span class="count">(' + lblRecShow + ')</span>');
     } else {
-      component.set(
-        'v.title',
-        '<span class="header-label">' + relatedList.labelName + '</span><span class="count">(' + lblRecShow + ')</span>'
-      );
+      component.set('v.title', '<span class="header-label">' + relatedList.labelName + '</span><span class="count">(' + lblRecShow + ')</span>');
     }
 
     component.set('v.records', rowsWithCells);
@@ -60,7 +57,7 @@
 
       columns.forEach((column, index) => {
         if (column.controlFieldName === controlFieldName) {
-          dependentFields = [...dependentFields, {iCol: index, dependentField: column}];
+          dependentFields = [...dependentFields, { iCol: index, dependentField: column }];
         }
       });
 
@@ -76,7 +73,7 @@
           let cell = listCells[field.iCol];
 
           if (!cell.isRequired && newOptions.length > 0) {
-            newOptions = [...newOptions, {label: '', value: ''}];
+            newOptions = [...newOptions, { label: '', value: '' }];
           }
 
           cell.picklistOptions = newOptions;
@@ -97,7 +94,25 @@
     component.set('v.isUnsavedRecords', true);
   },
   createRow: function(component, event, helper) {
-    helper.addRow(component, event, helper);
+    helper
+      .addRow(component, event, helper)
+      .then(
+        $A.getCallback((data) => {
+          if (data) {
+            const margin = 4;
+            const tableBodyPosition = document.querySelector('.dataGridBody').getClientRects()[0].top;
+            const scrollToPosition = document.querySelector('.editer-row:last-child').getClientRects()[0].top;
+            const cardBody = component.find('editBodyScroller').getElement();
+            cardBody.scrollTop = scrollToPosition - tableBodyPosition - margin;
+          }
+        })
+      )
+      .catch(
+        $A.getCallback((errorMessage) => {
+          //ブラウザのコンソールにエラー表示
+          console.error('Error: ', errorMessage);
+        })
+      );
   },
   deleteRow: function(component, event, helper) {
     let indexRow = event.getSource().get('v.value');
@@ -118,7 +133,7 @@
     let recordId = event.getSource().get('v.value');
     let navEvt = $A.get('e.force:navigateToSObject');
     navEvt.setParams({
-      recordId: recordId,
+      recordId: recordId
     });
     navEvt.fire();
   },
@@ -148,6 +163,7 @@
     let sortField = component.get('v.sortField');
 
     sortDESC = sortColName == sortField ? !sortDESC : sortDESC;
+    component.set('v.editedRecordList', null);
     component.set('v.sortField', sortColName);
     component.set('v.isOrderDESC', sortDESC);
 
@@ -164,6 +180,7 @@
       $A.util.addClass(cmpTarget, 'slds-fade-in-open');
       $A.util.addClass(cmpBack, 'slds-backdrop--open');
     } else {
+      component.set('v.editedRecordList', null);
       component.set('v.isEditMode', false);
     }
   },
@@ -185,6 +202,7 @@
     $A.util.removeClass(cmpTarget, 'slds-fade-in-open');
 
     //Close the edit modal
+    component.set('v.editedRecordList', null);
     component.set('v.isEditMode', false);
   },
 
@@ -262,7 +280,7 @@
       toDelete: lstTargetRecords.recDeletes,
       recordId: component.get('v.recordId'),
       parentField: parentField,
-      lstShowField: lstShowField,
+      lstShowField: lstShowField
     };
 
     action.setParams(params);
@@ -287,8 +305,10 @@
 
           let refreshRecords = component.getEvent('refreshRecordList');
           refreshRecords.setParams({
-            type: 'save',
+            type: 'save'
           });
+
+          component.set('v.editedRecordList', null);
           component.set('v.isEditMode', false);
 
           refreshRecords.fire();
@@ -312,4 +332,12 @@
       helper.isLoading(cmp, true);
     }
   },
+  loadMoreAction: function (cmp, event, helper) {
+    const loadMoreAction = cmp.getEvent('loadMoreAction');
+    let lstTargetRecords = helper.prepareRecordsToSave(cmp, event, helper);
+    const editedRecordList = [...lstTargetRecords.recInserts, ...lstTargetRecords.recUpdates];
+    cmp.set('v.editedRecordList', editedRecordList);
+
+    loadMoreAction.fire();
+  }
 });

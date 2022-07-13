@@ -1,6 +1,5 @@
 /**
  * CommList_RelatedListEditorCC
- * @author Furu CRM
  * @version 1.0
  * @Description: Handling list editor
  */
@@ -19,7 +18,8 @@ public with sharing class CommList_RelatedListEditorCC {
       return '';
     }
 
-    Map<String, Schema.SObjectField> fieldMap = leadSchema.getDescribe().fields.getMap();
+    Map<String, Schema.SObjectField> fieldMap = leadSchema.getDescribe()
+      .fields.getMap();
     String iterateFieldName = '';
     String prefixOrderField = '';
 
@@ -41,7 +41,9 @@ public with sharing class CommList_RelatedListEditorCC {
    * @return Boolean
    */
   private static Boolean isUniqueField(Schema.SobjectField objField) {
-    return (objField.getDescribe().isNameField() || objField.getDescribe().isAutoNumber() || objField.getDescribe().isUnique());
+    return (objField.getDescribe().isNameField() ||
+    objField.getDescribe().isAutoNumber() ||
+    objField.getDescribe().isUnique());
   }
 
   /**
@@ -50,15 +52,30 @@ public with sharing class CommList_RelatedListEditorCC {
    * @return GetRecordListResult
    */
   @AuraEnabled
-  public static GetRecordListResult getRecordList(String objectName, String fields, String limitRecs, String recordId, String parentField, String offset, String filter, String searchText, Boolean isOrderDESC, String orderField) {
+  public static GetRecordListResult getRecordList(
+    String objectName,
+    String fields,
+    String limitRecs,
+    String recordId,
+    String parentField,
+    String offset,
+    String filter,
+    String searchText,
+    Boolean isOrderDESC,
+    String orderField
+  ) {
     List<ColumnInfo> parentFieldList = new List<ColumnInfo>();
-    Schema.DescribeSObjectResult dsr = Schema.getGlobalDescribe().get(objectName).getDescribe();
+    Schema.DescribeSObjectResult dsr = Schema.getGlobalDescribe()
+      .get(objectName)
+      .getDescribe();
     Map<String, Schema.SObjectField> fieldMap = dsr.fields.getMap();
     String orderName = '';
     String firstParent;
     Boolean parentMatched = false;
     String sObjectName = objectName;
-    Boolean hasParsonalAccount = (objectName.equalsIgnoreCase('account') && fieldMap.get('LastName') != null);
+    Boolean hasParsonalAccount = (objectName.equalsIgnoreCase('account') &&
+    fieldMap.get('LastName') != null);
+    String relationRegExp = '__c$';
 
     if (!String.isEmpty(recordId)) {
       sObjectName = ((Id) recordId).getSObjectType().getDescribe().getName();
@@ -73,25 +90,51 @@ public with sharing class CommList_RelatedListEditorCC {
     }
 
     for (Schema.SobjectField strFld : fieldMap.values()) {
-      if (strFld.getDescribe().getType() == Schema.DisplayType.ENCRYPTEDSTRING) {
+      if (
+        strFld.getDescribe().getType() == Schema.DisplayType.ENCRYPTEDSTRING
+      ) {
         result.encryptedFields.add(strFld.getDescribe().getName());
       }
 
       if (strFld.getDescribe().getType() == Schema.DisplayType.REFERENCE) {
         //browse all posibilities of refer object
-        for (Schema.SObjectType reference : strFld.getDescribe().getReferenceTo()) {
+        for (
+          Schema.SObjectType reference : strFld.getDescribe().getReferenceTo()
+        ) {
           String referObject = reference.getDescribe().getName();
 
           if (fields.containsIgnoreCase(strFld.getDescribe().getName())) {
             String extraField;
 
             if (referObject == 'Case') {
-              extraField = strFld.getDescribe().getName().removeEnd('Id').replace('__c', '__r') + '.Subject' + ', ' + strFld.getDescribe().getName().removeEnd('Id').replace('__c', '__r') + '.CaseNumber';
-              caseField = strFld.getDescribe().getName().removeEnd('Id').replace('__c', '__r');
+              extraField =
+                strFld.getDescribe()
+                  .getName()
+                  .removeEnd('Id')
+                  .replaceFirst(relationRegExp, '__r') +
+                '.Subject' +
+                ', ' +
+                strFld.getDescribe()
+                  .getName()
+                  .removeEnd('Id')
+                  .replaceFirst(relationRegExp, '__r') +
+                '.CaseNumber';
+              caseField = strFld.getDescribe()
+                .getName()
+                .removeEnd('Id')
+                .replaceFirst(relationRegExp, '__r');
             } else if (referObject == 'ContentDocument') {
-              extraField = strFld.getDescribe().getName().removeEnd('Id').replace('__c', '__r') + '.Title';
+              extraField =
+                strFld.getDescribe()
+                  .getName()
+                  .removeEnd('Id')
+                  .replaceFirst(relationRegExp, '__r') + '.Title';
             } else {
-              extraField = strFld.getDescribe().getName().removeEnd('Id').replace('__c', '__r') + '.Name';
+              extraField =
+                strFld.getDescribe()
+                  .getName()
+                  .removeEnd('Id')
+                  .replaceFirst(relationRegExp, '__r') + '.Name';
             }
 
             if (extraField != null && !fields.containsIgnoreCase(extraField)) {
@@ -100,7 +143,13 @@ public with sharing class CommList_RelatedListEditorCC {
           }
 
           if (referObject.equalsIgnoreCase(sObjectName)) {
-            parentFieldList.add(new ColumnInfo(strFld.getDescribe().getName(), null, strFld.getDescribe().getLabel()));
+            parentFieldList.add(
+              new ColumnInfo(
+                strFld.getDescribe().getName(),
+                null,
+                strFld.getDescribe().getLabel()
+              )
+            );
 
             if (String.isBlank(firstParent)) {
               firstParent = strFld.getDescribe().getName();
@@ -113,7 +162,9 @@ public with sharing class CommList_RelatedListEditorCC {
         }
       } else if (strFld.getDescribe().getType() == Schema.DisplayType.ADDRESS) {
         if (fields.containsIgnoreCase(strFld.getDescribe().getName())) {
-          String addressField = strFld.getDescribe().getName().removeEnd('Address');
+          String addressField = strFld.getDescribe()
+            .getName()
+            .removeEnd('Address');
           fields += (', ' + addressField + 'City');
           fields += (', ' + addressField + 'State');
           fields += (', ' + addressField + 'Country');
@@ -122,15 +173,29 @@ public with sharing class CommList_RelatedListEditorCC {
           fields += (', ' + addressField + 'Latitude');
           fields += (', ' + addressField + 'Longitude');
         }
-      } else if (strFld.getDescribe().getType() == Schema.DisplayType.LOCATION) {
+      } else if (
+        strFld.getDescribe().getType() == Schema.DisplayType.LOCATION
+      ) {
         if (fields.containsIgnoreCase(strFld.getDescribe().getName())) {
-          LocationField fieldLocation = new LocationField(strFld.getDescribe().getName());
-          fields = fields.replace(fieldLocation.fieldApi, fieldLocation.fieldDetail);
+          LocationField fieldLocation = new LocationField(
+            strFld.getDescribe().getName()
+          );
+          fields = fields.replace(
+            fieldLocation.fieldApi,
+            fieldLocation.fieldDetail
+          );
           result.fieldsLocation.add(fieldLocation);
         }
-      } else if ((('account'.equalsIgnoreCase(objectName) && hasParsonalAccount) || 'contact'.equalsIgnoreCase(objectName) || 'lead'.equalsIgnoreCase(objectName)) && 'name'.endsWithIgnoreCase(strFld.getDescribe().getName())) {
+      } else if (
+        (('account'.equalsIgnoreCase(objectName) && hasParsonalAccount) ||
+        'contact'.equalsIgnoreCase(objectName) ||
+        'lead'.equalsIgnoreCase(objectName)) &&
+        'name'.endsWithIgnoreCase(strFld.getDescribe().getName())
+      ) {
         fields += (', FirstName, LastName');
-      } else if (strFld.getDescribe().getName().containsIgnoreCase('LE_Order__c')) {
+      } else if (
+        strFld.getDescribe().getName().containsIgnoreCase('LE_Order__c')
+      ) {
         orderName = strFld.getDescribe().getName();
 
         if (!fields.containsIgnoreCase('LE_Order__c'))
@@ -152,8 +217,12 @@ public with sharing class CommList_RelatedListEditorCC {
       orderName = orderField;
     }
 
-    String order = isOrderDESC == true ? ' DESC NULLS LAST' : ' ASC NULLS FIRST';
-    String strOrder = String.isBlank(orderName) ? ' ORDER BY LastModifiedDate' + order : ' ORDER BY ' + orderName + order + ', LastModifiedDate DESC ';
+    String order = isOrderDESC == true
+      ? ' DESC NULLS LAST'
+      : ' ASC NULLS FIRST';
+    String strOrder = String.isBlank(orderName)
+      ? ' ORDER BY LastModifiedDate' + order
+      : ' ORDER BY ' + orderName + order + ', LastModifiedDate DESC ';
 
     String strFilter = replaceQueryFilter(filter);
     Integer recLimit = Integer.valueOf(limitRecs);
@@ -163,7 +232,11 @@ public with sharing class CommList_RelatedListEditorCC {
     String searchWhere = '';
 
     if (searchText != null && !searchText.equals('')) {
-      SObjectType objectTypeData = ((SObject) (Type.forName('Schema.' + objectName).newInstance())).getSObjectType();
+      SObjectType objectTypeData = ((SObject) (Type.forName(
+            'Schema.' + objectName
+          )
+          .newInstance()))
+        .getSObjectType();
       DescribeSObjectResult objectDescribeData = objectTypeData.getDescribe();
 
       Pattern p = Pattern.compile('(?i).*(id|address|latitude|longitude)$');
@@ -185,17 +258,29 @@ public with sharing class CommList_RelatedListEditorCC {
             }
 
             try {
-              SObjectType relationObjectTypeData = ((SObject) (Type.forName('Schema.' + relationObjName.trim()).newInstance())).getSObjectType();
+              SObjectType relationObjectTypeData = ((SObject) (Type.forName(
+                    'Schema.' + relationObjName.trim()
+                  )
+                  .newInstance()))
+                .getSObjectType();
               DescribeSObjectResult relationObjectDescribeData = relationObjectTypeData.getDescribe();
-              feildType = relationObjectDescribeData.fields.getMap().get(relationFldName.trim()).getDescribe().getType();
+              feildType = relationObjectDescribeData.fields.getMap()
+                .get(relationFldName.trim())
+                .getDescribe()
+                .getType();
             } catch (Exception e) {
               feildType = Schema.DisplayType.String;
             }
           } else {
-            feildType = objectDescribeData.fields.getMap().get(field.trim()).getDescribe().getType();
+            feildType = objectDescribeData.fields.getMap()
+              .get(field.trim())
+              .getDescribe()
+              .getType();
           }
 
-          String escapeSearchText = String.escapeSingleQuotes(searchText.replace('%', '\\%').replace('_', '\\_'));
+          String escapeSearchText = String.escapeSingleQuotes(
+            searchText.replace('%', '\\%').replace('_', '\\_')
+          );
           if (
             feildType == Schema.DisplayType.String ||
             feildType == Schema.DisplayType.Email ||
@@ -221,22 +306,31 @@ public with sharing class CommList_RelatedListEditorCC {
 
     String searchWhereJoin = '';
 
-    if (sObjectName.equalsIgnoreCase('Contact') && (objectName.equalsIgnoreCase('Opportunity') || objectName.equalsIgnoreCase('Contract'))) {
+    if (
+      sObjectName.equalsIgnoreCase('Contact') &&
+      parentField == 'ContactId' &&
+      (objectName.equalsIgnoreCase('Opportunity') ||
+      objectName.equalsIgnoreCase('Contract'))
+    ) {
       String relateField;
 
-      switch on objectName {
-        when 'Opportunity' {
-          relateField = 'OpportunityId';
-        }
-        when 'Contract' {
-          relateField = 'ContractId';
-        }
+      if (objectName.equalsIgnoreCase('opportunity')) {
+        relateField = 'OpportunityId';
+      } else if (objectName.equalsIgnoreCase('contract')) {
+        relateField = 'ContractId';
       }
 
       String contactWhere = '';
 
       if (!String.isEmpty(recordId)) {
-        contactWhere += ' WHERE Id IN (SELECT ' + relateField + ' FROM ' + objectName + 'ContactRole WHERE ContactId = \'' + String.escapeSingleQuotes(recordId) + '\')';
+        contactWhere +=
+          ' WHERE Id IN (SELECT ' +
+          relateField +
+          ' FROM ' +
+          objectName +
+          'ContactRole WHERE ContactId = \'' +
+          String.escapeSingleQuotes(recordId) +
+          '\')';
         searchWhereJoin = searchWhere.equals('') ? '' : ' AND ' + searchWhere;
       } else if (!String.isEmpty(strFilter)) {
         strFilter = strFilter.replaceAll('^(\\s+)AND', ' WHERE ');
@@ -247,7 +341,20 @@ public with sharing class CommList_RelatedListEditorCC {
         searchWhereJoin = ' WHERE ' + searchWhere;
       }
 
-      query = 'SELECT ' + fields + ' FROM ' + objectName + ' ' + contactWhere + strFilter + searchWhereJoin + strOrder + ' LIMIT ' + (recLimit + 1) + ' OFFSET ' + offset;
+      query =
+        'SELECT ' +
+        fields +
+        ' FROM ' +
+        objectName +
+        ' ' +
+        contactWhere +
+        strFilter +
+        searchWhereJoin +
+        strOrder +
+        ' LIMIT ' +
+        (recLimit + 1) +
+        ' OFFSET ' +
+        offset;
     } else {
       String SoqlWhere = '';
       String IdField = 'Id';
@@ -257,7 +364,12 @@ public with sharing class CommList_RelatedListEditorCC {
       }
 
       if (!String.isEmpty(recordId)) {
-        SoqlWhere += ' WHERE ' + IdField + ' = \'' + String.escapeSingleQuotes(recordId) + '\'';
+        SoqlWhere +=
+          ' WHERE ' +
+          IdField +
+          ' = \'' +
+          String.escapeSingleQuotes(recordId) +
+          '\'';
         searchWhereJoin = searchWhere.equals('') ? '' : ' AND ' + searchWhere;
       } else if (!String.isEmpty(strFilter)) {
         strFilter = strFilter.replaceAll('^(\\s+)AND', ' WHERE ');
@@ -268,14 +380,27 @@ public with sharing class CommList_RelatedListEditorCC {
         searchWhereJoin = ' WHERE ' + searchWhere;
       }
 
-      query = 'SELECT ' + fields + ' FROM ' + objectName + ' ' + SoqlWhere + strFilter + searchWhereJoin + strOrder + ' LIMIT ' + (recLimit + 1) + ' OFFSET ' + offset;
+      query =
+        'SELECT ' +
+        fields +
+        ' FROM ' +
+        objectName +
+        ' ' +
+        SoqlWhere +
+        strFilter +
+        searchWhereJoin +
+        strOrder +
+        ' LIMIT ' +
+        (recLimit + 1) +
+        ' OFFSET ' +
+        offset;
     }
 
     if (String.isBlank(query)) {
       return null;
     }
 
-    System.debug('query: '+query);
+    //System.debug('query: ' + query);
 
     List<SObject> records = Database.query(query);
 
@@ -293,6 +418,7 @@ public with sharing class CommList_RelatedListEditorCC {
 
     // Get record tpye
     Schema.RecordTypeInfo masterRt;
+
     for (Schema.RecordTypeInfo rt : dsr.getRecordTypeInfos()) {
       if (rt.isAvailable() && rt.isActive() && !rt.isMaster()) {
         Map<String, Object> recordType = new Map<String, Object>();
@@ -324,23 +450,30 @@ public with sharing class CommList_RelatedListEditorCC {
     return result;
   }
 
-  private static List<Sobject> hideEncryptedField(List<Sobject> records, List<String> listEncryptedField) {
+  private static List<Sobject> hideEncryptedField(
+    List<Sobject> records,
+    List<String> listEncryptedField
+  ) {
     for (sObject obj : records) {
       for (String encryptedField : listEncryptedField) {
         if (obj.isSet(encryptedField)) {
           String currentValue = String.valueOf(obj.get(encryptedField));
+
           if (String.isNotBlank(currentValue)) {
             String newValue = '';
             Integer i = 0;
+
             while (i < currentValue.length()) {
               newValue += '*';
               i++;
             }
+
             obj.put(encryptedField, newValue);
           }
         }
       }
     }
+
     return records;
   }
   private static String replaceQueryFilter(String filter) {
@@ -349,7 +482,10 @@ public with sharing class CommList_RelatedListEditorCC {
     }
     return ' AND ' + filter.replace('"', '\'') + ' ';
   }
-  private static String checkAndRemoveInvalidRecordType(String fields, Schema.DescribeSObjectResult dsr) {
+  private static String checkAndRemoveInvalidRecordType(
+    String fields,
+    Schema.DescribeSObjectResult dsr
+  ) {
     Boolean shouldRemoveRecordType = true;
 
     for (Schema.RecordTypeInfo rti : dsr.getRecordTypeInfos()) {
@@ -361,13 +497,16 @@ public with sharing class CommList_RelatedListEditorCC {
 
     if (shouldRemoveRecordType) {
       Set<String> fieldsAsSet = new Set<String>(fields.split(','));
+
       for (String field : fieldsAsSet) {
         if (field.toLowerCase().trim() == 'recordtypeid') {
           fieldsAsSet.remove(field);
         }
       }
+
       return String.join(new List<String>(fieldsAsSet), ',');
     }
+
     return fields;
   }
 
@@ -389,21 +528,39 @@ public with sharing class CommList_RelatedListEditorCC {
   @AuraEnabled
   public static Map<String, Object> getMapDefaultValue(String objName) {
     Map<String, Object> result = new Map<String, Object>();
-    sObject sObj = Schema.getGlobalDescribe().get(objName).newSObject(null, true);
-    Schema.SObjectType sobjectTypeSchema = Schema.getGlobalDescribe().get(objName);
-    Map<String, Schema.SObjectField> fieldMap = sobjectTypeSchema.getDescribe().fields.getMap();
+    sObject sObj = Schema.getGlobalDescribe()
+      .get(objName)
+      .newSObject(null, true);
+    Schema.SObjectType sobjectTypeSchema = Schema.getGlobalDescribe()
+      .get(objName);
+    Map<String, Schema.SObjectField> fieldMap = sobjectTypeSchema.getDescribe()
+      .fields.getMap();
+
     for (String fieldName : fieldMap.keySet()) {
       Object defaultValue = sObj.get(fieldName);
       Schema.SObjectField field = fieldMap.get(fieldName);
       String fieldType = field.getDescribe().getType().name();
-      if (defaultValue == null || field == null || fieldType == 'REFERENCE' || fieldType == 'ID') {
+
+      if (
+        defaultValue == null ||
+        field == null ||
+        fieldType == 'REFERENCE' ||
+        fieldType == 'ID' ||
+        !field.getDescribe().isUpdateable() ||
+        !field.getDescribe().isAccessible()
+      ) {
         continue;
       }
+
       if (fieldType == 'TIME') {
         Integer currentTimezone = (integer) getOffsetCurrentTimezone();
         Time defaultTime = (Time) defaultValue;
-        defaultTime = Time.newInstance(defaultTime.hour(), defaultTime.minute(), 0, 0);
-        //System.debug(defaultValue);
+        defaultTime = Time.newInstance(
+          defaultTime.hour(),
+          defaultTime.minute(),
+          0,
+          0
+        );
         defaultTime = defaultTime.addMilliseconds(currentTimezone);
         result.put(fieldName.toLowerCase(), defaultTime);
       } else {
@@ -427,15 +584,25 @@ public with sharing class CommList_RelatedListEditorCC {
    * @return DataRelatedObject
    */
   @AuraEnabled
-  public static DataRelatedObject getRelatedList(string sObjectName, string objectName, string showFields, string parentField) {
+  public static DataRelatedObject getRelatedList(
+    string sObjectName,
+    string objectName,
+    string showFields,
+    string parentField
+  ) {
     DataRelatedObject tarGetDataRelated = new DataRelatedObject();
 
     // Setting data for each fields/columns
-    Schema.DescribeSObjectResult objSchemaDescribe = Schema.getGlobalDescribe().get(objectName).getDescribe();
+    Schema.DescribeSObjectResult objSchemaDescribe = Schema.getGlobalDescribe()
+      .get(objectName)
+      .getDescribe();
     List<ColumnInfoDetail> lstObjectFields = new List<ColumnInfoDetail>();
     Map<String, Schema.SObjectField> fieldMap = objSchemaDescribe.fields.getMap();
     List<String> lstAvailableFields = new List<String>();
-    showFields = checkAndRemoveInvalidRecordType(showFields.replace(' ', ''), objSchemaDescribe);
+    showFields = checkAndRemoveInvalidRecordType(
+      showFields.replace(' ', ''),
+      objSchemaDescribe
+    );
     List<String> lstShowFields = showFields.split(',');
     Map<String, Object> mapDefaultValue = getMapDefaultValue(objectName);
 
@@ -450,7 +617,10 @@ public with sharing class CommList_RelatedListEditorCC {
       if (field != null) {
         Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
 
-        if (!fieldDescribe.isNillable()) {
+        if (
+          !fieldDescribe.isNillable() &&
+          fieldDescribe.getType() != Schema.DisplayType.Boolean
+        ) {
           tarGetDataRelated.requiredFields.add(fieldDescribe.getName());
         }
 
@@ -463,21 +633,31 @@ public with sharing class CommList_RelatedListEditorCC {
 
         if (col.fieldType == 'PICKLIST' || col.fieldType == 'MULTIPICKLIST') {
           if (fieldDescribe.isDependentPicklist()) {
-            Schema.DescribeFieldResult controlFieldDescribe = fieldDescribe.getController().getDescribe();
+            Schema.DescribeFieldResult controlFieldDescribe = fieldDescribe.getController()
+              .getDescribe();
             col.controlFieldName = controlFieldDescribe.getName();
-            col.picklistDependencyOptions = CommList_PicklistService.getDependencyPicklistOptions(controlFieldDescribe, fieldDescribe.getPicklistValues());
+            col.picklistDependencyOptions = CommList_PicklistService.getDependencyPicklistOptions(
+              controlFieldDescribe,
+              fieldDescribe.getPicklistValues()
+            );
           } else {
-            List<CommList_PicklistOption> options = CommList_PicklistService.getPicklistOptions(fieldDescribe.getPicklistValues());
+            List<CommList_PicklistOption> options = CommList_PicklistService.getPicklistOptions(
+              fieldDescribe.getPicklistValues()
+            );
             col.picklistOptions.addAll(options);
           }
         }
 
         // Getting reference name
         if (col.fieldType == 'REFERENCE') {
-          Relationship relationship = new Relationship(fieldDescribe.getRelationshipName());
+          Relationship relationship = new Relationship(
+            fieldDescribe.getRelationshipName()
+          );
+
           for (Schema.SObjectType reference : fieldDescribe.getReferenceTo()) {
             relationship.objects.add(reference.getDescribe().getName());
           }
+
           col.relationship = relationship;
         }
 
@@ -490,7 +670,10 @@ public with sharing class CommList_RelatedListEditorCC {
           col.fieldType = 'CALCULATED';
         }
 
-        col.htmlInputType = new HtmlInputType(col.fieldType, fieldDescribe.getScale());
+        col.htmlInputType = new HtmlInputType(
+          col.fieldType,
+          fieldDescribe.getScale()
+        );
 
         lstObjectFields.add(col);
       } else {
@@ -506,18 +689,31 @@ public with sharing class CommList_RelatedListEditorCC {
     // Setting extra infor for show
     tarGetDataRelated.lstObjectFields = lstObjectFields;
     tarGetDataRelated.lstShowFieldsName = lstShowFields;
-    tarGetDataRelated.lstExtraFields = CommList_RelatedListEditorCC.getExtraFields(sObjectName, objectName, lstAvailableFields, parentField);
-    tarGetDataRelated.labelName = CommList_RelatedListEditorCC.getObjectLabel(objectName);
+    tarGetDataRelated.lstExtraFields = CommList_RelatedListEditorCC.getExtraFields(
+      sObjectName,
+      objectName,
+      lstAvailableFields,
+      parentField
+    );
+    tarGetDataRelated.labelName = CommList_RelatedListEditorCC.getObjectLabel(
+      objectName
+    );
     tarGetDataRelated.isRowCreateable = objSchemaDescribe.isCreateable();
     tarGetDataRelated.isRowDeleteable = objSchemaDescribe.isDeletable();
-    tarGetDataRelated.defaultRecordTypeId = getDefaultRecordTypeId(objSchemaDescribe);
+    tarGetDataRelated.defaultRecordTypeId = getDefaultRecordTypeId(
+      objSchemaDescribe
+    );
     String strTabStyle = CommList_RelatedListEditorCC.getTabStyle(objectName);
-    tarGetDataRelated.tabStyle = String.isBlank(strTabStyle) ? 'standard:custom' : strTabStyle;
+    tarGetDataRelated.tabStyle = String.isBlank(strTabStyle)
+      ? 'standard:custom'
+      : strTabStyle;
 
     return tarGetDataRelated;
   }
 
-  private static String getDefaultRecordTypeId(Schema.DescribeSObjectResult dsr) {
+  private static String getDefaultRecordTypeId(
+    Schema.DescribeSObjectResult dsr
+  ) {
     for (Schema.RecordTypeInfo rti : dsr.getRecordTypeInfos()) {
       if (rti.isDefaultRecordTypeMapping() && !rti.isMaster()) {
         return rti.getRecordTypeId();
@@ -532,7 +728,12 @@ public with sharing class CommList_RelatedListEditorCC {
    * @return List<String>
    */
   @TestVisible
-  private static List<String> getExtraFields(String parentObejct, String childObject, List<String> lstStrFields, String parentField) {
+  private static List<String> getExtraFields(
+    String parentObejct,
+    String childObject,
+    List<String> lstStrFields,
+    String parentField
+  ) {
     List<String> lstExtra = new List<String>();
 
     if (!lstStrFields.contains('Id')) {
@@ -542,12 +743,23 @@ public with sharing class CommList_RelatedListEditorCC {
     if (String.isBlank(parentField)) {
       Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
       Schema.SObjectType objSchema = schemaMap.get(childObject);
-      Map<String, Schema.SObjectField> fieldMap = objSchema.getDescribe().fields.getMap();
+      Map<String, Schema.SObjectField> fieldMap = objSchema.getDescribe()
+        .fields.getMap();
 
       for (String field : fieldMap.keySet()) {
-        if (fieldMap.get(field).getDescribe().getType() == Schema.DisplayType.REFERENCE) {
-          for (Schema.SObjectType reference : fieldMap.get(field).getDescribe().getReferenceTo()) {
-            if (parentObejct.equals(reference.getDescribe().getName()) && String.isBlank(parentField)) {
+        if (
+          fieldMap.get(field).getDescribe().getType() ==
+          Schema.DisplayType.REFERENCE
+        ) {
+          for (
+            Schema.SObjectType reference : fieldMap.get(field)
+              .getDescribe()
+              .getReferenceTo()
+          ) {
+            if (
+              parentObejct.equals(reference.getDescribe().getName()) &&
+              String.isBlank(parentField)
+            ) {
               parentField = fieldMap.get(field).getDescribe().getName();
               lstExtra.add(parentField);
             }
@@ -567,9 +779,14 @@ public with sharing class CommList_RelatedListEditorCC {
    * @return void
    */
   @TestVisible
-  private static List<String> settingShowFields(List<String> lstShowFieldsSetting, Map<String, Schema.SObjectField> fieldMap, String objectName) {
+  private static List<String> settingShowFields(
+    List<String> lstShowFieldsSetting,
+    Map<String, Schema.SObjectField> fieldMap,
+    String objectName
+  ) {
     Set<String> setNotEmpty = new Set<String>(lstShowFieldsSetting);
-    Boolean hasParsonalAccount = (objectName.equalsIgnoreCase('account') && fieldMap.get('LastName') != null);
+    Boolean hasParsonalAccount = (objectName.equalsIgnoreCase('account') &&
+    fieldMap.get('LastName') != null);
 
     // remove blanks and nulls
     setNotEmpty.remove('');
@@ -586,10 +803,18 @@ public with sharing class CommList_RelatedListEditorCC {
     List<Integer> lstPosDelField = new List<Integer>();
 
     for (String field : lstShowFieldsSetting) {
-      String compoundFieldNm = fieldMap.get(field).getDescribe().compoundfieldname;
+      String compoundFieldNm = fieldMap.get(field)
+        .getDescribe()
+        .compoundfieldname;
 
-      if (String.isNotBlank(compoundFieldNm) && lstLowerCase.indexOf(compoundFieldNm.toLowerCase()) > -1) {
-        if (!(objectName.equalsIgnoreCase('account') && field.equalsIgnoreCase('name'))) {
+      if (
+        String.isNotBlank(compoundFieldNm) &&
+        lstLowerCase.indexOf(compoundFieldNm.toLowerCase()) > -1
+      ) {
+        if (
+          !(objectName.equalsIgnoreCase('account') &&
+          field.equalsIgnoreCase('name'))
+        ) {
           lstPosDelField.add(lstShowFieldsSetting.indexOf(field));
         }
       }
@@ -607,18 +832,43 @@ public with sharing class CommList_RelatedListEditorCC {
 
     for (String field : lstShowFieldsSetting) {
       // With the special case, that's Contact object. The Name field is a compound field. So Expanding it.
-      if (('contact'.equalsIgnoreCase(objectName) || 'lead'.equalsIgnoreCase(objectName)) && 'name'.equalsIgnoreCase(field)) {
-        mapPosAddField.put(lstShowFieldsSetting.indexOf(field), new List<String>{ 'FirstName', 'LastName' });
+      if (
+        ('contact'.equalsIgnoreCase(objectName) ||
+        'lead'.equalsIgnoreCase(objectName)) && 'name'.equalsIgnoreCase(field)
+      ) {
+        mapPosAddField.put(
+          lstShowFieldsSetting.indexOf(field),
+          new List<String>{ 'FirstName', 'LastName' }
+        );
       }
 
-      if (hasParsonalAccount && ('account'.equalsIgnoreCase(objectName)) && 'name'.equalsIgnoreCase(field)) {
-        mapPosAddField.put(lstShowFieldsSetting.indexOf(field), new List<String>{ 'Name', 'FirstName', 'LastName' });
+      if (
+        hasParsonalAccount &&
+        ('account'.equalsIgnoreCase(objectName)) &&
+        'name'.equalsIgnoreCase(field)
+      ) {
+        mapPosAddField.put(
+          lstShowFieldsSetting.indexOf(field),
+          new List<String>{ 'Name', 'FirstName', 'LastName' }
+        );
       }
 
       // With the compound field with type address. Expand them too.
-      if ('address'.equalsIgnoreCase(fieldMap.get(field).getDescribe().type.name())) {
+      if (
+        'address'
+          .equalsIgnoreCase(fieldMap.get(field).getDescribe().type.name())
+      ) {
         String addressPre = field.removeEndIgnoreCase('address');
-        mapPosAddField.put(lstShowFieldsSetting.indexOf(field), new List<String>{ addressPre + 'City', addressPre + 'State', addressPre + 'Country', addressPre + 'PostalCode', addressPre + 'Street' });
+        mapPosAddField.put(
+          lstShowFieldsSetting.indexOf(field),
+          new List<String>{
+            addressPre + 'City',
+            addressPre + 'State',
+            addressPre + 'Country',
+            addressPre + 'PostalCode',
+            addressPre + 'Street'
+          }
+        );
       }
     }
 
@@ -630,7 +880,11 @@ public with sharing class CommList_RelatedListEditorCC {
         lstShowFieldsSetting.add(posAdd + numberPadding, str);
       }
 
-      lstShowFieldsSetting.remove(posAdd + numberPadding + mapPosAddField.get(posAdd).size());
+      lstShowFieldsSetting.remove(
+        posAdd +
+        numberPadding +
+        mapPosAddField.get(posAdd).size()
+      );
       numberPadding = numberPadding + mapPosAddField.get(posAdd).size() - 1;
     }
 
@@ -643,7 +897,16 @@ public with sharing class CommList_RelatedListEditorCC {
    * @return SaveTableResult
    */
   @AuraEnabled
-  public static SaveTableResult saveRecords(string sObjectName, string objectName, list<SObject> toInsert, list<SObject> toUpdate, list<SObject> toDelete, String recordId, String parentField, List<String> lstShowField) {
+  public static SaveTableResult saveRecords(
+    string sObjectName,
+    string objectName,
+    list<SObject> toInsert,
+    list<SObject> toUpdate,
+    list<SObject> toDelete,
+    String recordId,
+    String parentField,
+    List<String> lstShowField
+  ) {
     SaveTableResult tableResult = new SaveTableResult();
 
     try {
@@ -652,17 +915,31 @@ public with sharing class CommList_RelatedListEditorCC {
       // With the action updating records
       if (!checkFLS(lstShowField, FLSType.UPDATE_OBJECT, objectName)) {
         for (Integer i = 0; i < toUpdate.size(); i++) {
-          tableResult.updateResults.add(new DMLResult(toUpdate[i].Id, false, 'このレコードの更新権限がありません。'));
+          tableResult.updateResults.add(
+            new DMLResult(
+              toUpdate[i].Id,
+              false,
+              System.Label.CommList_RelatedListEditorCCUpdateError
+            )
+          );
         }
       } else {
         // get Encrypted Field
         List<String> listEncryptedField = new List<String>();
-        Map<String, Schema.SObjectField> fieldMap = Schema.getGlobalDescribe().get(objectName).getDescribe().fields.getMap();
+        Map<String, Schema.SObjectField> fieldMap = Schema.getGlobalDescribe()
+          .get(objectName)
+          .getDescribe()
+          .fields.getMap();
 
         for (String fieldName : lstShowField) {
           Schema.SobjectField strFld = fieldMap.get(fieldName.toLowerCase());
-          if (strFld != null && strFld.getDescribe().getType() == Schema.DisplayType.ENCRYPTEDSTRING) {
-            listEncryptedField.add(strFld.getDescribe().getName().toLowerCase());
+          if (
+            strFld != null &&
+            strFld.getDescribe().getType() == Schema.DisplayType.ENCRYPTEDSTRING
+          ) {
+            listEncryptedField.add(
+              strFld.getDescribe().getName().toLowerCase()
+            );
           }
         }
 
@@ -675,7 +952,15 @@ public with sharing class CommList_RelatedListEditorCC {
           }
 
           //build query
-          Map<Id, SObject> mapOldRecord = new Map<Id, SObject>(Database.query('SELECT Id,' + String.join(listEncryptedField, ',') + ' FROM ' + objectName + ' WHERE Id IN :listId '));
+          Map<Id, SObject> mapOldRecord = new Map<Id, SObject>(
+            Database.query(
+              'SELECT Id,' +
+              String.join(listEncryptedField, ',') +
+              ' FROM ' +
+              objectName +
+              ' WHERE Id IN :listId '
+            )
+          );
 
           for (sObject obj : toUpdate) {
             Map<String, Object> fieldsToValue = obj.getPopulatedFieldsAsMap();
@@ -686,7 +971,11 @@ public with sharing class CommList_RelatedListEditorCC {
               if (listEncryptedField.contains(key.toLowerCase())) {
                 String sValue = String.valueOf(fieldsToValue.get(key));
 
-                if (mapOldRecord.get(objId).get(key) != null && sValue.countMatches('*') == String.valueOf(mapOldRecord.get(objId).get(key)).length()) {
+                if (
+                  mapOldRecord.get(objId).get(key) != null &&
+                  sValue.countMatches('*') ==
+                  String.valueOf(mapOldRecord.get(objId).get(key)).length()
+                ) {
                   continue;
                 }
               }
@@ -699,7 +988,9 @@ public with sharing class CommList_RelatedListEditorCC {
         Database.SaveResult[] updateResult = Database.update(toUpdate, false);
 
         for (Database.SaveResult sr : updateResult) {
-          tableResult.updateResults.add(new DMLResult(toUpdate[index].Id, sr.isSuccess(), sr.getErrors()));
+          tableResult.updateResults.add(
+            new DMLResult(toUpdate[index].Id, sr.isSuccess(), sr.getErrors())
+          );
           index++;
         }
       }
@@ -709,19 +1000,32 @@ public with sharing class CommList_RelatedListEditorCC {
 
       if (!checkFLS(lstShowField, FLSType.CREATE_OBJECT, objectName)) {
         for (Integer i = 0; i < toInsert.size(); i++) {
-          tableResult.insertResults.add(new DMLResult(toInsert[i].Id, false, 'このオブジェクトにレコード作成権限がありません。'));
+          tableResult.insertResults.add(
+            new DMLResult(
+              toInsert[i].Id,
+              false,
+              System.Label.CommList_RelatedListEditorCCCreateError
+            )
+          );
         }
       } else {
         // With the action inserting records
         Database.SaveResult[] insertResult = Database.insert(toInsert, false);
 
         for (Database.SaveResult sr : insertResult) {
-          tableResult.insertResults.add(new DMLResult(toInsert[index].Id, sr.isSuccess(), sr.getErrors()));
+          tableResult.insertResults.add(
+            new DMLResult(toInsert[index].Id, sr.isSuccess(), sr.getErrors())
+          );
           index++;
         }
 
         // In some special case with child of Contact object.
-        if (sObjectName.equalsIgnoreCase('Contact') && String.isBlank(parentField) && (objectName.equalsIgnoreCase('Opportunity') || objectName.equalsIgnoreCase('Contract'))) {
+        if (
+          sObjectName.equalsIgnoreCase('Contact') &&
+          String.isBlank(parentField) &&
+          (objectName.equalsIgnoreCase('Opportunity') ||
+          objectName.equalsIgnoreCase('Contract'))
+        ) {
           List<SObject> lstExtendAdd = new List<SObject>();
 
           if (objectName.equalsIgnoreCase('Opportunity')) {
@@ -735,22 +1039,39 @@ public with sharing class CommList_RelatedListEditorCC {
 
           for (Database.SaveResult sr : insertResult) {
             if (objectName.equalsIgnoreCase('Opportunity')) {
-              lstExtendAdd.add(new OpportunityContactRole(OpportunityId = toInsert[idx].Id, ContactId = String.escapeSingleQuotes(recordId)));
+              lstExtendAdd.add(
+                new OpportunityContactRole(
+                  OpportunityId = toInsert[idx].Id,
+                  ContactId = String.escapeSingleQuotes(recordId)
+                )
+              );
             } else {
-              lstExtendAdd.add(new ContractContactRole(ContractId = toInsert[idx].Id, ContactId = String.escapeSingleQuotes(recordId)));
+              lstExtendAdd.add(
+                new ContractContactRole(
+                  ContractId = toInsert[idx].Id,
+                  ContactId = String.escapeSingleQuotes(recordId)
+                )
+              );
             }
 
             idx++;
           }
 
           // Replace the new errors
-          Database.SaveResult[] insertResultExpandResult = Database.insert(lstExtendAdd, false);
+          Database.SaveResult[] insertResultExpandResult = Database.insert(
+            lstExtendAdd,
+            false
+          );
           Integer indexExt = 0;
 
           for (Database.SaveResult sr : insertResultExpandResult) {
             if (!sr.isSuccess()) {
               DMLResult res = tableResult.insertResults.get(indexExt);
-              res = new DMLResult(toInsert[indexExt].Id, sr.isSuccess(), sr.getErrors());
+              res = new DMLResult(
+                toInsert[indexExt].Id,
+                sr.isSuccess(),
+                sr.getErrors()
+              );
             }
 
             indexExt++;
@@ -763,20 +1084,30 @@ public with sharing class CommList_RelatedListEditorCC {
 
       if (!checkFLS(lstShowField, FLSType.DELETE_OBJECT, objectName)) {
         for (Integer i = 0; i < toDelete.size(); i++) {
-          tableResult.deleteResults.add(new DMLResult(toDelete[i].Id, false, 'このレコードを削除できません。'));
+          tableResult.deleteResults.add(
+            new DMLResult(
+              toDelete[i].Id,
+              false,
+              System.Label.CommList_RelatedListEditorCCDeleteError
+            )
+          );
         }
       } else {
         // With the action delete records
         Database.DeleteResult[] deleteResult = Database.delete(toDelete, false);
 
         for (Database.DeleteResult sr : deleteResult) {
-          tableResult.deleteResults.add(new DMLResult(toDelete[index].Id, sr.isSuccess(), sr.getErrors()));
+          tableResult.deleteResults.add(
+            new DMLResult(toDelete[index].Id, sr.isSuccess(), sr.getErrors())
+          );
           index++;
         }
       }
     } catch (Exception ex) {
       // "Convert" the exception into an AuraHandledException
-      throw new AuraHandledException('Something went wrong: ' + ex.getMessage());
+      throw new AuraHandledException(
+        'Something went wrong: ' + ex.getMessage()
+      );
     }
 
     return tableResult;
@@ -789,11 +1120,16 @@ public with sharing class CommList_RelatedListEditorCC {
    * @return String
    */
   @AuraEnabled(cacheable=true)
-  public static String getChildRelationshipName(String childObject, String parentObject, String parentField) {
+  public static String getChildRelationshipName(
+    String childObject,
+    String parentObject,
+    String parentField
+  ) {
     Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
     Schema.SObjectType leadSchema = schemaMap.get(parentObject);
 
-    List<ChildRelationship> rels = leadSchema.getDescribe().getChildRelationships();
+    List<ChildRelationship> rels = leadSchema.getDescribe()
+      .getChildRelationships();
 
     for (ChildRelationship rel : rels) {
       if (childObject == rel.getChildSObject().getDescribe().getName()) {
@@ -818,18 +1154,27 @@ public with sharing class CommList_RelatedListEditorCC {
    * @return String
    */
   @AuraEnabled(cacheable=true)
-  public static List<ColumnInfo> getColumnInfo(String objectName, String fields) {
+  public static List<ColumnInfo> getColumnInfo(
+    String objectName,
+    String fields
+  ) {
     Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
     Schema.SObjectType leadSchema = schemaMap.get(objectName);
-    Map<String, Schema.SObjectField> fieldMap = leadSchema.getDescribe().fields.getMap();
+    Map<String, Schema.SObjectField> fieldMap = leadSchema.getDescribe()
+      .fields.getMap();
     List<ColumnInfo> infos = new List<ColumnInfo>();
+    String relationRegExp = '__c$';
 
     for (String fieldName : fields.split(',')) {
       fieldName = fieldName.trim();
       Schema.SobjectField strFld = fieldMap.get(fieldName);
 
       if (strFld == null) {
-        ColumnInfo info = new ColumnInfo(fieldName, 'STRING', fieldName.toLowerCase().removeEnd('id'));
+        ColumnInfo info = new ColumnInfo(
+          fieldName,
+          'STRING',
+          fieldName.toLowerCase().removeEnd('id')
+        );
         infos.add(info);
       } else {
         Schema.DescribeFieldResult fieldDescribe = strFld.getDescribe();
@@ -840,22 +1185,40 @@ public with sharing class CommList_RelatedListEditorCC {
           Schema.SObjectType parentObject = fieldDescribe.getReferenceTo()[0];
 
           if (parentObject.getDescribe().getName() == 'Case') {
-            extraField = fieldName.removeEnd('Id').replace('__c', '__r') + '.Subject';
+            extraField =
+              fieldName.removeEnd('Id').replaceFirst(relationRegExp, '__r') +
+              '.Subject';
           } else {
-            extraField = fieldName.removeEnd('Id').replace('__c', '__r') + '.Name';
+            extraField =
+              fieldName.removeEnd('Id').replaceFirst(relationRegExp, '__r') +
+              '.Name';
           }
 
-          ColumnInfo info = new ColumnInfo(fieldName, String.valueOf(fieldDescribe.getType()), strFld.getDescribe().getLabel().removeEnd('ID'));
+          ColumnInfo info = new ColumnInfo(
+            fieldName,
+            String.valueOf(fieldDescribe.getType()),
+            strFld.getDescribe().getLabel().removeEnd('ID')
+          );
           info.setReference(fieldDescribe.getReferenceTo());
           info.typeAttribute.label = new LinkProperty(extraField);
           infos.add(info);
         } else if (fieldDescribe.getType() == Schema.DisplayType.PICKLIST) {
-          ColumnInfo info = new ColumnInfo(fieldName, String.valueOf(fieldDescribe.getType()), fieldDescribe.getLabel());
-          info.picklistOptions = CommList_PicklistService.getPicklistOptions(fieldDescribe.getPicklistValues());
+          ColumnInfo info = new ColumnInfo(
+            fieldName,
+            String.valueOf(fieldDescribe.getType()),
+            fieldDescribe.getLabel()
+          );
+          info.picklistOptions = CommList_PicklistService.getPicklistOptions(
+            fieldDescribe.getPicklistValues()
+          );
           infos.add(info);
         } else if (isUniqueField(strFld)) {
           //if unique field then create link to record
-          ColumnInfo info = new ColumnInfo(fieldName, 'UNIQUE', fieldDescribe.getLabel());
+          ColumnInfo info = new ColumnInfo(
+            fieldName,
+            'UNIQUE',
+            fieldDescribe.getLabel()
+          );
           infos.add(info);
         } else if (String.valueOf(fieldDescribe.getType()) == 'DOUBLE') {
           /**
@@ -863,16 +1226,35 @@ public with sharing class CommList_RelatedListEditorCC {
            * Add ' || String.valueOf(fieldDescribe.getType()) == 'INTEGER' ' to if statement to use
            */
           Integer scale = fieldDescribe.getScale();
-          ColumnInfo info = new ColumnInfo(fieldName, 'number', fieldDescribe.getLabel());
+          ColumnInfo info = new ColumnInfo(
+            fieldName,
+            'number',
+            fieldDescribe.getLabel()
+          );
           info.typeAttribute = new TypeAttributes(scale);
           infos.add(info);
         } else if (String.valueOf(fieldDescribe.getType()) == 'CURRENCY') {
           Integer scale = fieldDescribe.getScale();
-          ColumnInfo info = new ColumnInfo(fieldName, 'currency', fieldDescribe.getLabel());
+          ColumnInfo info = new ColumnInfo(
+            fieldName,
+            'currency',
+            fieldDescribe.getLabel()
+          );
           info.typeAttribute = new TypeAttributes(scale);
           infos.add(info);
+        } else if (strFld.getDescribe().isCalculated()) {
+          ColumnInfo info = new ColumnInfo(
+            fieldName,
+            'calculated',
+            fieldDescribe.getLabel()
+          );
+          infos.add(info);
         } else {
-          ColumnInfo info = new ColumnInfo(fieldName, String.valueOf(fieldDescribe.getType()), fieldDescribe.getLabel());
+          ColumnInfo info = new ColumnInfo(
+            fieldName,
+            String.valueOf(fieldDescribe.getType()),
+            fieldDescribe.getLabel()
+          );
           infos.add(info);
         }
       }
@@ -883,15 +1265,15 @@ public with sharing class CommList_RelatedListEditorCC {
     List<ActionDefine> actions = new List<ActionDefine>();
 
     if (objSchema.getDescribe().isUpdateable()) {
-      actions.add(new ActionDefine('編集', 'edit', false));
+      actions.add(new ActionDefine('Edit', 'edit', false));
     }
 
     if (objSchema.getDescribe().isDeletable()) {
-      actions.add(new ActionDefine('削除', 'delete', false));
+      actions.add(new ActionDefine('Delete', 'delete', false));
     }
 
     if (actions.size() == 0) {
-      actions.add(new ActionDefine('アクションはありません', 'no action', true));
+      actions.add(new ActionDefine('No action', 'no action', true));
     }
 
     rowAction.typeAttribute = new TypeAttributes(actions);
@@ -907,10 +1289,32 @@ public with sharing class CommList_RelatedListEditorCC {
    */
   @AuraEnabled(cacheable=true)
   public static String getObjectLabel(String objectName) {
-    List<Schema.DescribeSObjectResult> describeSobjectsResult = Schema.describeSObjects(new List<String>{ objectName });
+    List<Schema.DescribeSObjectResult> describeSobjectsResult = Schema.describeSObjects(
+      new List<String>{ objectName }
+    );
     String objectLabel = describeSobjectsResult[0].getLabel();
 
     return objectLabel;
+  }
+
+  /**
+   * Get Flow Info
+   * @param  List<String> flowNames
+   * @return List<FlowDefinitionView>
+   */
+  @AuraEnabled(cacheable=true)
+  public static List<FlowDefinitionView> getFlowInfo(List<String> flowNames) {
+    List<FlowDefinitionView> flowInfo = new List<FlowDefinitionView>();
+
+    if (flowNames != null && flowNames.size() > 0) {
+      flowInfo = [
+        SELECT Id, ApiName, Label
+        FROM FlowDefinitionView
+        WHERE ApiName IN :flowNames
+      ];
+    }
+
+    return flowInfo;
   }
 
   /**
@@ -943,18 +1347,29 @@ public with sharing class CommList_RelatedListEditorCC {
     }
 
     for (Schema.DescribeIconResult ir : iconDesc) {
-      if (ir.getTheme() == 'custom' && !ir.getContentType().startsWith('image/svg')) {
+      if (
+        ir.getTheme() == 'custom' &&
+        !ir.getContentType().startsWith('image/svg')
+      ) {
         //custom icon thats not an svg
         return '';
-      } else if (ir.getWidth() == 120 && ir.getTheme() == 'theme4' && ir.getContentType() == 'image/png') {
+      } else if (
+        ir.getWidth() == 120 &&
+        ir.getTheme() == 'theme4' &&
+        ir.getContentType() == 'image/png'
+      ) {
         //large lightning icon image
         if (ir.getURL().contains('/custom/')) {
           //Icon is from the Custom Sprite
-          String iconTag = ir.getURL().substringBetween('custom/', '.png').substringBefore('_');
+          String iconTag = ir.getURL()
+            .substringBetween('custom/', '.png')
+            .substringBefore('_');
           return 'custom:' + iconTag;
         } else if (ir.getURL().contains('/standard/')) {
           //Icon is from the Standard Sprite
-          String iconTag = ir.getURL().substringBetween('standard/', '.png').substringBefore('_');
+          String iconTag = ir.getURL()
+            .substringBetween('standard/', '.png')
+            .substringBefore('_');
           return 'standard:' + iconTag;
         }
       }
@@ -969,7 +1384,11 @@ public with sharing class CommList_RelatedListEditorCC {
     UPDATE_OBJECT,
     DELETE_OBJECT
   }
-  public static Boolean checkFLS(String[] fieldCheckFLS, FLSType type, String objectName) {
+  public static Boolean checkFLS(
+    String[] fieldCheckFLS,
+    FLSType type,
+    String objectName
+  ) {
     Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
     Schema.SObjectType objSchema = schemaMap.get(objectName);
 
@@ -977,7 +1396,8 @@ public with sharing class CommList_RelatedListEditorCC {
       return false;
     }
 
-    Map<String, Schema.SObjectField> fieldMap = objSchema.getDescribe().fields.getMap();
+    Map<String, Schema.SObjectField> fieldMap = objSchema.getDescribe()
+      .fields.getMap();
     Set<String> fieldCheck = new Set<String>();
 
     //if null -> check all custom field
@@ -996,7 +1416,12 @@ public with sharing class CommList_RelatedListEditorCC {
         SObjectField cusField = fieldMap.get(field);
 
         if (cusField != null) {
-          if (!cusField.getDescribe().isCreateable() && !cusField.getDescribe().isCalculated() && !cusField.getDescribe().isAutoNumber() && cusField.getDescribe().getRelationshipOrder() == null) {
+          if (
+            !cusField.getDescribe().isCreateable() &&
+            !cusField.getDescribe().isCalculated() &&
+            !cusField.getDescribe().isAutoNumber() &&
+            cusField.getDescribe().getRelationshipOrder() == null
+          ) {
             return false;
           }
         } else {
@@ -1008,7 +1433,12 @@ public with sharing class CommList_RelatedListEditorCC {
         SObjectField cusField = fieldMap.get(field);
 
         if (cusField != null) {
-          if (!fieldMap.get(field).getDescribe().isUpdateable() && !cusField.getDescribe().isCalculated() && !cusField.getDescribe().isAutoNumber() && cusField.getDescribe().getRelationshipOrder() == null) {
+          if (
+            !fieldMap.get(field).getDescribe().isUpdateable() &&
+            !cusField.getDescribe().isCalculated() &&
+            !cusField.getDescribe().isAutoNumber() &&
+            cusField.getDescribe().getRelationshipOrder() == null
+          ) {
             return false;
           }
         } else {
@@ -1065,7 +1495,10 @@ public with sharing class CommList_RelatedListEditorCC {
     public String fieldDetail { get; set; }
     public LocationField(String fieldApi) {
       this.fieldApi = fieldApi;
-      this.fieldDetail = fieldApi.replace('__c', '__latitude__s') + ',' + fieldApi.replace('__c', '__longitude__s');
+      this.fieldDetail =
+        fieldApi.replace('__c', '__latitude__s') +
+        ',' +
+        fieldApi.replace('__c', '__longitude__s');
     }
   }
 
@@ -1088,7 +1521,14 @@ public with sharing class CommList_RelatedListEditorCC {
       this.type = type;
       this.label = label;
 
-      if (type == 'ID' || type == 'URL' || type == 'EMAIL' || type == 'PHONE' || type == 'REFERENCE' || type == 'UNIQUE') {
+      if (
+        type == 'ID' ||
+        type == 'URL' ||
+        type == 'EMAIL' ||
+        type == 'PHONE' ||
+        type == 'REFERENCE' ||
+        type == 'UNIQUE'
+      ) {
         typeAttribute = new TypeAttributes('_self', apiName);
       }
 
@@ -1243,10 +1683,21 @@ public with sharing class CommList_RelatedListEditorCC {
       this.mainType = 'invalid';
       this.subType = 'invalid';
       this.formatType = 'invalid';
-      if (fieldType == 'TEXTAREA' || fieldType == 'ENCRYPTEDSTRING' || fieldType == 'STRING' || fieldType == 'ID' || fieldType == 'COMBOBOX') {
+      if (
+        fieldType == 'TEXTAREA' ||
+        fieldType == 'ENCRYPTEDSTRING' ||
+        fieldType == 'STRING' ||
+        fieldType == 'ID' ||
+        fieldType == 'COMBOBOX'
+      ) {
         this.mainType = 'standard';
         this.subType = 'text';
-      } else if (fieldType == 'CURRENCY' || fieldType == 'DOUBLE' || fieldType == 'INTEGER' || fieldType == 'PERCENT') {
+      } else if (
+        fieldType == 'CURRENCY' ||
+        fieldType == 'DOUBLE' ||
+        fieldType == 'INTEGER' ||
+        fieldType == 'PERCENT'
+      ) {
         this.mainType = 'standard';
         this.subType = 'number';
         this.formatType = fieldType == 'PERCENT' ? 'percent-fixed' : fieldType;

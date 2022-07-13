@@ -3,13 +3,18 @@
     const objectName = component.get('v.objectName');
     const fields = component.get('v.fields');
     const rowsToLoad = component.get('v.viewRowsToLoad');
-    const recordId = component.get('v.recordId');
     const parentField = component.get('v.parentField');
     const conditionsFilterList = component.get('v.conditionsFilterList');
     const searchText = component.get('v.searchText');
     const isOrderDESC = component.get('v.isOrderDESC');
     const orderField = component.get('v.orderField');
     const offset = component.get('v.loadMoreOffset') || 0;
+    let recordId = component.get('v.recordId');
+    const selectedRows = component.get('v.selectedRows');
+
+    if (recordId && (recordId.length != 15 && recordId.length != 18)) {
+      recordId = null;
+    }
 
     component.set('v.isLoading', true);
     // create a server side action.
@@ -57,14 +62,21 @@
         }
 
         let recordList = result.records;
+        const originalRecordList = JSON.parse(JSON.stringify(result.records));
 
         if (!isRefresh) {
+          component.set('v.originalRecordList', [...component.get('v.originalRecordList'), ...originalRecordList]);
           recordList = (component.get('v.recordList') || []).concat(recordList);
+          component.set('v.margeSelectedRows', selectedRows);
+        } else {
+          component.set('v.originalRecordList', originalRecordList);
+          component.set('v.margeSelectedRows', null);
+          component.set('v.selectedRowIds', null);
         }
 
         component.set('v.hasMoreRecord', result.hasMoreRecord);
         component.set('v.loadMoreOffset', recordList.length);
-        component.set('v.recordList', this.getSortData(recordList, isOrderDESC, orderField));
+        component.set('v.recordList', recordList);
       } else if (a.getState() === 'ERROR') {
         this.handleListEditorException(component, $A.get('$Label.c.CommList_ExceptionGetRecord'));
       }
@@ -72,6 +84,32 @@
     });
 
     // enqueue the action
+    $A.enqueueAction(action);
+  },
+
+  getFlowInfo: function (component, flowItem) {
+    const action = component.get('c.getFlowInfo');
+
+    action.setParams({
+      flowNames: flowItem
+    });
+
+    action.setCallback(this, (returnVal) => {
+      const result = returnVal.getReturnValue();
+
+      if (result && result.length > 0 && returnVal.getState() === 'SUCCESS') {
+        const flowItem = result.map(record => {
+          return {
+            id: record.Id,
+            value: record.ApiName,
+            label: record.Label
+          };
+        })
+
+        component.set('v.flowItem', flowItem);
+      }
+    });
+
     $A.enqueueAction(action);
   },
 
@@ -111,20 +149,5 @@
     }
 
     return recordData[alias] || null;
-  },
-
-  getSortData: function(recordList, sortDESC, sortColName) {
-    let delection = sortDESC ? 1 : -1;
-    let sortField = sortColName ? sortColName.split('.') : [sortColName];
-
-    return recordList.sort((a, b) => {
-      let aName = this.getDeepData(a, sortField.slice());
-      let bName = this.getDeepData(b, sortField.slice());
-      if (!aName || String(aName).trim() === '') return 1;
-      if (!bName || String(bName).trim() === '') return -1;
-      if (aName < bName) return delection;
-      if (aName > bName) return -delection;
-      return 0;
-    });
   }
 });

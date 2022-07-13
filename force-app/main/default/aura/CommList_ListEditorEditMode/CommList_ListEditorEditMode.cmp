@@ -2,6 +2,7 @@
   <aura:attribute type="Map" name="relatedList" description="a single RL" />
   <aura:attribute type="Map" name="records" description="records pulled from apex" />
   <aura:attribute type="Map" name="recordList" description="records pulled from apex" />
+  <aura:attribute type="Map" name="editedRecordList" description="records pulled from apex" />
   <aura:attribute type="Id" name="recordId" />
   <aura:attribute type="string" name="parentObject" default="Account" />
   <aura:attribute type="string" name="objectName" default="Contact" />
@@ -38,7 +39,7 @@
   <aura:attribute type="String" name="sortingFieldConfirmed" default="" />
   <aura:attribute type="String" name="iconCategory" />
   <aura:attribute type="String" name="iconPattern" />
-  <aura:attribute type="Aura.Action" name="loadMoreDataAction" />
+  <aura:registerEvent name="loadMoreAction" type="c:CommList_LoadMoreEvent"/>
 
   <aura:handler event="c:CommList_EditInputChangeEvent" action="{!c.onFieldChange}" />
   <aura:handler name="change" value="{!v.recordList}" action="{!c.reloadData}" />
@@ -61,8 +62,8 @@
     </header>
     <div aura:id="modalOverflow" class="main-body slds-modal__content">
       <form class="{!v.hasMoreRecord? 'hasMoreRecord' : ''}" autocomplete="off" action="javascript:void(0);">
-        <article class="slds-card edit-body-outer display-inline-block slds-p-around_medium">
-          <header class="slds-card__header slds-grid">
+        <article class="slds-card edit-body-outer display-inline-block slds-p-around_medium modal-card">
+          <header class="slds-card__header slds-grid modal-header">
             <div class="slds-media slds-media_center slds-has-flexi-truncate">
               <div class="slds-media__body slds-truncate">
                 <h2>
@@ -98,15 +99,13 @@
                 iconSize="medium"
                 onselect="{! c.menuClick }"
               >
-                <!-- <lightning:menuItem label="保存" value="save"></lightning:menuItem> -->
                 <lightning:menuItem
                   label="{!format($Label.c.CommList_TextMode)}"
                   value="textMode"
                   aura:id="textModeItem"
                   checked="{!v.displayPicklistAsText}"
                 ></lightning:menuItem>
-                <!-- <lightning:menuItem label="Tabキーで下へ" value="tabMode" aura:id="tabModeItem" checked="false"></lightning:menuItem> --></lightning:buttonMenu
-              >
+              </lightning:buttonMenu>
             </div>
           </header>
           <div class="slds-card__body">
@@ -117,25 +116,30 @@
                   <table class="slds-table slds-table_bordered relatedlist slds-m-bottom_small">
                     <thead>
                       <tr class="slds-text-title_caps">
-                        <!--aura:if isTrue="{!v.isHaveOrderField}">
-                          <th class="slds-is-sortable" scope="col">
-                            <button style="width:100%; height:30px;" class="slds-button slds-button_icon slds-button_icon-border" type="button" href="javascript:void(0);" role="button" tabindex="-1" onclick="{!c.sort}" data-colname="{!v.orderField}">
-                              <div>
-                                <aura:if isTrue="{!v.sortField == v.orderField}">
-                                    <aura:if isTrue="{!v.isOrderDESC}">
-                                      <lightning:icon iconName="utility:arrowup" size="x-small"/>
-                                      <aura:set attribute="else">
-                                        <lightning:icon iconName="utility:arrowdown" size="x-small"/>
-                                      </aura:set>
-                                    </aura:if>
-                                </aura:if>
-                              </div>
-                            </button>
-                          </th>
-                          <aura:set attribute="else">
-                            <th></th>
-                          </aura:set>
-                        </aura:if-->
+                        <aura:if isTrue="{!v.isHaveOrderField}">
+													<th class="slds-is-sortable" scope="col">
+														<button style="width:100%; height:30px;" class="slds-button slds-button_icon slds-button_icon-border" type="button" href="javascript:void(0);" role="button" tabindex="-1" onclick="{!c.sort}" data-colname="{!v.orderField}">
+															<div>
+																<!-- <aura:iteration items="{!v.requiredFields}" var="requiredField">
+																	<aura:if isTrue="{! and(requiredField == col.fieldApiName, col.fieldApiName != 'Id') }">
+																		<span style="color: red;">*</span>
+																	</aura:if>
+																</aura:iteration>-->
+																<aura:if isTrue="{!v.sortField == v.orderField}">
+																		<aura:if isTrue= "{!v.isOrderDESC}" >
+																			<lightning:icon iconName="utility:arrowup" size="x-small"/>
+																			<aura:set attribute="else">
+																				<lightning:icon iconName="utility:arrowdown" size="x-small"/>
+																			</aura:set>
+																		</aura:if>
+																</aura:if>
+															</div>
+														</button>
+													</th>
+													<aura:set attribute="else">
+														<th></th>
+													</aura:set>
+												</aura:if>
                         <aura:iteration items="{!v.relatedList.lstObjectFields}" var="col">
                           <th
                             aria-label="{!col.fieldName}"
@@ -155,7 +159,7 @@
                               <div class="slds-grid slds-grid_vertical-align-center slds-has-flexi-truncate">
                                 <aura:iteration items="{!v.requiredFields}" var="requiredField">
                                   <aura:if isTrue="{! and(requiredField == col.fieldApiName, col.fieldApiName != 'Id') }">
-                                    <span style="color: red;">*</span>
+                                    <span class="color-red">*</span>
                                   </aura:if>
                                 </aura:iteration>
                                 <span class="slds-truncate" title="{!col.fieldName}">{!col.fieldName}</span>
@@ -196,16 +200,15 @@
                           ondragstart="{!c.dragstart}"
                           data-drag-id="{!indexRow}"
                         >
-                          <!--td class="editer-col__draggable" data-drag-id="{!indexRow}">
-                            <div class="row" onmouseover="{!c.mouseOverDragIcon}" onmouseout="{!c.mouseOutDragIcon}" data-drag-id="{!indexRow}">
-                              <lightning:buttonIcon alternativeText="" iconClass="" variant="border" type="button" iconName="utility:apps" size="medium"></lightning:buttonIcon>
-                            </div>
-                          </td-->
+                          <td data-drag-id="{!indexRow}">
+														<div class="row" onmouseover="{!c.mouseOverDragIcon}" onmouseout="{!c.mouseOutDragIcon}" data-drag-id="{!indexRow}">
+															<lightning:buttonIcon alternativeText="" iconClass="" variant="border" type="button" iconName="utility:apps" size="medium"></lightning:buttonIcon>
+														</div>
+													</td>
                           <aura:iteration items="{!row.cells}" var="cell" indexVar="colIndex">
                             <aura:if isTrue="{!v.isScrollable}">
                               <td
-                                class="{!cell.isVisible==false || cell.fieldType == 'CALCULATED' || and(cell.isUpdateable==false, v.hideNonUpdateable) ? 'slds-hide editer-col' : 'cellPadding editer-col'}"
-                                style="min-width:150px"
+                                class="{!cell.isVisible==false || cell.fieldType == 'CALCULATED' || and(cell.isUpdateable==false, v.hideNonUpdateable) ? 'slds-hide editer-col min-width_150' : 'cellPadding editer-col min-width_150'}"
                               >
                                 <c:CommList_EditInputCmp
                                   type="{! v.displayPicklistAsText ? 'standard' : cell.inputMainType }"
@@ -224,6 +227,7 @@
                                   isEditable="false"
                                   objectFields="{! v.relatedList.lstObjectFields }"
                                   fieldType="{! cell.fieldType }"
+                                  isEdited="{! cell.isEdited}"
                                 />
                               </td>
                               <aura:set attribute="else">
@@ -247,13 +251,14 @@
                                     isEditable="false"
                                     objectFields="{! v.relatedList.lstObjectFields }"
                                     fieldType="{! cell.fieldType }"
+                                    isEdited="{! cell.isEdited }"
                                   />
                                 </td>
                               </aura:set>
                             </aura:if>
                           </aura:iteration>
                           <td class="editer-col__action">
-                            <div class="group-button-action" style="float:right">
+                            <div class="group-button-action">
                               <lightning:buttonIcon
                                 iconName="utility:copy"
                                 value="{!indexRow}"
@@ -300,7 +305,7 @@
                             <c:CommList_ErrorTooltipCmp
                               message="{!row.DMLMessage}"
                               iconName="utility:error"
-                              tipSide="left"
+                              tipSide="{!or($Browser.isAndroid, $Browser.isIPhone)}"
                               iconVariant="error"
                               iconSize="x-small"
                               class="{!row.DMLError ? 'slds-show_inline' : 'slds-hide'}"
@@ -324,14 +329,14 @@
       </form>
       <aura:if isTrue="{!v.hasMoreRecord}">
         <div aura:id="btnLoadMore" class="buttonLoadMore">
-          <a href="javascript:void(0);" onclick="{!v.loadMoreDataAction}" class="slds-text-link"
+          <a href="javascript:void(0);" onclick="{!c.loadMoreAction}" class="slds-text-link"
             >{!format($Label.c.CommList_LoadMore)}</a
           >
         </div>
       </aura:if>
     </div>
     <footer class="slds-modal__footer">
-      <div class="slds-p-around_medium" style="text-align:center">
+      <div class="slds-p-around_medium listEditorEditMode-modalFooter_wrap">
         <lightning:button
           label="{!format($Label.c.CommList_CancelButton)}"
           class="slds-m-bottom_xx-small"
@@ -348,7 +353,7 @@
       </div>
     </footer>
   </div>
-  <div style="height: 640px;">
+  <div class="listEditorEditMode-modal_wrap">
     <section
       role="dialog"
       tabindex="-1"
@@ -374,7 +379,7 @@
           <p>{!format($Label.c.CommList_ConfirmClose)}</p>
         </div>
         <footer class="slds-modal__footer">
-          <div class="slds-p-around_medium" style="text-align:center">
+          <div class="slds-p-around_medium listEditorEditMode-footer_wrap">
             <lightning:button
               variant="neutral"
               label="{!format($Label.c.CommList_NoLabel)}"
@@ -397,7 +402,7 @@
     <c:CommList_CreateRecordModal objectApiName="{!v.objectToCreate}" isOpen="{!v.isCreateRecord}" />
   </aura:if>
   <aura:if isTrue="{!v.isConfirmingSort}">
-    <div style="height: 640px;">
+    <div class="listEditorEditMode-isConfirmingSort_wrap">
       <section
         role="dialog"
         tabindex="-1"
@@ -422,7 +427,7 @@
             <p>{!format($Label.c.CommList_ConfirmSort)}</p>
           </div>
           <footer class="slds-modal__footer">
-            <div class="slds-p-around_medium" style="text-align:center">
+            <div class="slds-p-around_medium listEditorEditMode-modalFooter_wrap">
               <lightning:button
                 variant="neutral"
                 label="{!format($Label.c.CommList_NoLabel)}"

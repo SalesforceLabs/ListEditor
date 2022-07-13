@@ -1,17 +1,19 @@
 /**
  * CommList_EditRL_LookupFieldCC
- * @author Furu CRM
  * @version 1.0
  * @Description: Handling lookup fields handling
  */
-public class CommList_EditRL_LookupFieldCC {
+public with sharing class CommList_EditRL_LookupFieldCC {
   /**
    * Aura enabled method to get the name of the initial record to load
    * @param  Id recordId, String[] objectsToSearch
    * @return ResultDataLookup
    */
   @AuraEnabled(cacheable=true)
-  public static ResultDataLookup getRecordName(Id recordId, String[] objectsToSearch) {
+  public static ResultDataLookup getRecordName(
+    String recordId,
+    String[] objectsToSearch
+  ) {
     if (String.isBlank(recordId)) {
       return new ResultDataLookup(null, null, null, null);
     }
@@ -24,7 +26,8 @@ public class CommList_EditRL_LookupFieldCC {
         if (leadSchema == null) {
           return new ResultDataLookup(null, null, null, null);
         }
-        Map<String, Schema.SObjectField> fieldMap = leadSchema.getDescribe().fields.getMap();
+        Map<String, Schema.SObjectField> fieldMap = leadSchema.getDescribe()
+          .fields.getMap();
         String nameField;
         if (fieldMap.get('Name') != null) {
           nameField = 'Name';
@@ -37,7 +40,16 @@ public class CommList_EditRL_LookupFieldCC {
         }
 
         // Creating query data
-        String myQuery = 'SELECT Id, ' + nameField + ' FROM ' + objectName + ' WHERE Id = \'' + String.escapeSingleQuotes(recordId) + '\'';
+        String myQuery =
+          'SELECT Id, ' +
+          nameField +
+          ' FROM ' +
+          objectName +
+          ' WHERE Id = \'' +
+          String.escapeSingleQuotes(recordId) +
+          '\'';
+
+        //System.debug('query: ' + myQuery);
         List<sObject> results = Database.query(myQuery);
 
         if (results.size() > 0) {
@@ -45,12 +57,27 @@ public class CommList_EditRL_LookupFieldCC {
           ResultDataLookup dataResult;
           if (fieldMap.get('Subject') != null) {
             if (String.isNotBlank((String) results[0].get('Subject'))) {
-              dataResult = new ResultDataLookup(strName, (String) results[0].get('Subject'), results[0].Id, null);
+              dataResult = new ResultDataLookup(
+                strName,
+                (String) results[0].get('Subject'),
+                results[0].Id,
+                null
+              );
             } else {
-              dataResult = new ResultDataLookup(strName, (String) results[0].get('CaseNumber'), results[0].Id, null);
+              dataResult = new ResultDataLookup(
+                strName,
+                (String) results[0].get('CaseNumber'),
+                results[0].Id,
+                null
+              );
             }
           } else {
-            dataResult = new ResultDataLookup(strName, (String) results[0].get(nameField), results[0].Id, null);
+            dataResult = new ResultDataLookup(
+              strName,
+              (String) results[0].get(nameField),
+              results[0].Id,
+              null
+            );
           }
           return dataResult;
         }
@@ -68,7 +95,10 @@ public class CommList_EditRL_LookupFieldCC {
    * @return ResultDataLookup[]
    */
   @AuraEnabled(cacheable=true)
-  public static ResultDataLookup[] lookup(String searchString, String[] objectsToSearch) {
+  public static ResultDataLookup[] lookup(
+    String searchString,
+    String[] objectsToSearch
+  ) {
     // Sanitze the input
     String sanitizedSearchString = String.escapeSingleQuotes(searchString);
     String strFieldReturn = '';
@@ -86,7 +116,12 @@ public class CommList_EditRL_LookupFieldCC {
     List<ResultDataLookup> dataresults = new List<ResultDataLookup>();
 
     // Build our SOSL query
-    String searchQuery = 'FIND \'' + sanitizedSearchString + '*\' IN ALL FIELDS RETURNING ' + strFieldReturn + ' Limit 50';
+    String searchQuery =
+      'FIND \'' +
+      sanitizedSearchString +
+      '*\' IN ALL FIELDS RETURNING ' +
+      strFieldReturn +
+      ' Limit 50';
 
     // Execute the Query
     List<List<SObject>> lstDataSearch = search.query(searchQuery);
@@ -94,15 +129,38 @@ public class CommList_EditRL_LookupFieldCC {
     // Create a list of matches to return
     for (List<Sobject> lstTarget : lstDataSearch) {
       for (SObject targetObject : lstTarget) {
-        String objectName = targetObject.getSobjectType().getDescribe().getName();
+        String objectName = targetObject.getSobjectType()
+          .getDescribe()
+          .getName();
         if (objectName == 'Case') {
           if (String.isNotBlank((String) targetObject.get('Subject'))) {
-            dataresults.add(new ResultDataLookup(objectName, (String) targetObject.get('Subject'), targetObject.Id, (String) targetObject.get('CaseNumber')));
+            dataresults.add(
+              new ResultDataLookup(
+                objectName,
+                (String) targetObject.get('Subject'),
+                targetObject.Id,
+                (String) targetObject.get('CaseNumber')
+              )
+            );
           } else {
-            dataresults.add(new ResultDataLookup(objectName, '', targetObject.Id, (String) targetObject.get('CaseNumber')));
+            dataresults.add(
+              new ResultDataLookup(
+                objectName,
+                '',
+                targetObject.Id,
+                (String) targetObject.get('CaseNumber')
+              )
+            );
           }
         } else {
-          dataresults.add(new ResultDataLookup(objectName, (String) targetObject.get('Name'), targetObject.Id, null));
+          dataresults.add(
+            new ResultDataLookup(
+              objectName,
+              (String) targetObject.get('Name'),
+              targetObject.Id,
+              null
+            )
+          );
         }
       }
     }
@@ -125,10 +183,17 @@ public class CommList_EditRL_LookupFieldCC {
     @AuraEnabled
     public String subRecLabel { get; set; }
 
-    public ResultDataLookup(String objectName, String recLabel, Id recId, String subRecLabel) {
+    public ResultDataLookup(
+      String objectName,
+      String recLabel,
+      Id recId,
+      String subRecLabel
+    ) {
       this.objectName = objectName;
       if (String.isNotBlank(objectName))
-        this.objectIcon = objectName.endsWith('__c') ? 'standard:custom_notification' : 'standard:' + objectName.toLowerCase();
+        this.objectIcon = objectName.endsWith('__c')
+          ? 'standard:custom_notification'
+          : 'standard:' + objectName.toLowerCase();
       this.recLabel = recLabel;
       this.recId = recId;
       this.subRecLabel = subRecLabel;

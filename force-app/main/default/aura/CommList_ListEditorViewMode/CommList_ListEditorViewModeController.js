@@ -5,7 +5,7 @@
   refresh: function(component, event, helper) {
     const compEvent = component.getEvent('refreshRecordList');
     compEvent.setParams({
-      type: 'refresh',
+      type: 'refresh'
     });
     compEvent.fire();
   },
@@ -29,6 +29,9 @@
     component.set('v.sortedDirection', sortDESC ? 'desc' : 'asc');
     component.set('v.orderField', sortColName);
     component.set('v.isOrderDESC', sortDESC);
+    component.set('v.margeSelectedRows', null);
+    component.set('v.selectedRows', null);
+    component.set('v.selectedRowIds', null);
   },
   handleRowAction: function(component, event, helper) {
     let action = event.getParam('action');
@@ -39,13 +42,10 @@
 
     component.set('v.selectedRowId', recordId);
 
-    switch (action.name) {
-      case 'edit':
+    if (action.name == 'edit') {
         helper.handleEditRow(component, event);
-        break;
-      case 'delete':
+    } else if (action.name == 'delete') {
         component.set('v.isOpen', true);
-        break;
     }
   },
 
@@ -56,6 +56,7 @@
 
   closeModel: function(component, event, helper) {
     component.set('v.isOpen', false);
+    component.set('v.isFlowExecOpen', false);
   },
 
   navigateToListView: function(component, event, helper) {
@@ -63,7 +64,7 @@
 
     relatedListEvent.setParams({
       relatedListId: component.get('v.relationField'),
-      parentRecordId: component.get('v.recordId'),
+      parentRecordId: component.get('v.recordId')
     });
 
     relatedListEvent.fire();
@@ -89,7 +90,7 @@
     const compEvent = component.getEvent('refreshRecordList');
     compEvent.setParams({
       type: 'changeParent',
-      parentField: component.get('v.parentField'),
+      parentField: component.get('v.parentField')
     });
     compEvent.fire();
   },
@@ -109,6 +110,7 @@
 
     component.set('v.isChooseRecordType', !isChooseRecordType);
   },
+
   createRecord: function(component, event, helper) {
     let objectName = component.get('v.objectName');
     let parentField = component.get('v.parentField');
@@ -116,7 +118,7 @@
     let getDefaultValue = component.get('c.getMapDefaultValue');
 
     getDefaultValue.setParams({
-      objName: objectName,
+      objName: objectName
     });
 
     getDefaultValue.setCallback(this, (result) => {
@@ -124,9 +126,13 @@
       let createObjectEvent = $A.get('e.force:createRecord');
 
       objectDefaultValue[parentField] = recordId;
+      const defaultFieldValues = {};
+      defaultFieldValues[`${objectName}Id`] = recordId;
+
       createObjectEvent.setParams({
         entityApiName: objectName,
         recordTypeId: component.get('v.recordTypeId'),
+        defaultFieldValues: objectDefaultValue
       });
 
       component.set('v.isChooseRecordType', false);
@@ -135,6 +141,7 @@
 
     $A.enqueueAction(getDefaultValue);
   },
+
   changeRecordeTypeId: function(component, event, helper) {
     let recordTypeId = event.getSource().get('v.value');
     let recordTypes = component.get('v.recordTypes');
@@ -147,4 +154,46 @@
     component.set('v.recordTypes', recordTypes);
     component.set('v.recordTypeId', recordTypeId);
   },
+
+  onrowselect: function (component, event) {
+    let selectedRows = event.getParam('selectedRows');
+    const margeSelectedRows = component.get('v.margeSelectedRows');
+
+    if (margeSelectedRows && Object.keys(margeSelectedRows).length > 0) {
+      selectedRows = Object.assign(selectedRows, margeSelectedRows);
+      //Reset
+      component.set('v.margeSelectedRows', null);
+    }
+
+    const selectedRowIds = selectedRows.map((item) => item.Id);
+
+    component.set('v.selectedRows', selectedRows);
+    component.set('v.selectedRowIds', selectedRowIds);
+  },
+
+  execFlow: function(component, event, helper) {
+    component.set('v.isFlowExecOpen', true);
+
+    const flow = component.find('flow');
+    const flowName = event.getParam('value');
+    const selectedRows = component.get('v.selectedRows');
+    const inputVariables = [
+      {
+        name: 'Objects',
+        type: 'SObject',
+        value: selectedRows
+      }
+    ];
+
+    flow.startFlow(flowName, inputVariables);
+  },
+
+  statusChange: function (component, event) {
+    const status = event.getParam('status');
+
+    if (status === 'FINISHED' || status === 'FINISHED_SCREEN') {
+      $A.get('e.force:closeQuickAction').fire();
+      component.set('v.isFlowExecOpen', false);
+    }
+  }
 });

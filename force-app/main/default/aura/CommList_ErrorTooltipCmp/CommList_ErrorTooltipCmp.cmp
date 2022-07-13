@@ -1,6 +1,6 @@
 <aura:component>
   <aura:attribute name="message" type="String" default="Default Message" />
-  <aura:attribute name="tipSide" type="String" default="right" />
+  <aura:attribute name="tipSide" type="Boolean" default="false" />
   <aura:attribute name="class" type="String" default=" " />
   <aura:attribute name="iconSize" type="String" default="xx-small" />
   <aura:attribute name="iconName" type="String" default="utility:info" />
@@ -8,15 +8,17 @@
   <aura:attribute name="iconClass" type="String" default=" " />
   <aura:attribute name="tipBGColor" type="String" default="rgb(22, 50, 92);" />
 
-  <div style="position:relative;" class="{!v.class}">
-    <div class="slds-form-element infoIcon" style="display:inline">
+  <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+
+  <div class="{! 'errotTooltip ' + v.class}">
+    <div class="slds-form-element infoIcon">
       <lightning:icon iconName="{!v.iconName}" size="{!v.iconSize}" variant="{!v.iconVariant}" class="{!v.iconClass}" alternativeText="Help" />
     </div>
     <div
-      class="{!(v.tipSide=='right'?'slds-nubbin--bottom-left rightSide':'slds-nubbin--bottom-right leftSide')+' slds-popover slds-popover--tooltip  infoTip'}"
-      role="tooltip"
+      aura:id="errortip-help"
       id="help"
-      style="{!'width: 20rem;white-space:normal;position:absolute;bottom:30px;background:'+v.tipBGColor}"
+      class="{!(v.tipSide?'slds-nubbin_bottom-right':'slds-nubbin_right-bottom')+' leftSide slds-popover slds-popover--tooltip infoTip'}"
+      role="tooltip"
     >
       <div class="slds-popover__body"><aura:unescapedHtml value="{!v.message}"/></div>
     </div>

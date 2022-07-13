@@ -94,6 +94,16 @@
   display: none;
 }
 
+.THIS .slds-card.modal-card {
+  padding-left: var(--sds-c-card-header-spacing-inline-end, var(--sds-c-card-header-spacing-inline, var(--lwc-varSpacingHorizontalMedium, 1rem)));
+  padding-right: var(--sds-c-card-header-spacing-inline-end, var(--sds-c-card-header-spacing-inline, var(--lwc-varSpacingHorizontalMedium, 1rem)));
+}
+
+.THIS .slds-card .slds-card__header.modal-header {
+  padding-left: var(--sds-c-card-header-spacing-inline-end, var(--sds-c-card-header-spacing-inline, var(--lwc-varSpacingHorizontalMedium, 1rem)));
+  padding-right: var(--sds-c-card-header-spacing-inline-end, var(--sds-c-card-header-spacing-inline, var(--lwc-varSpacingHorizontalMedium, 1rem)));
+}
+
 .THIS .editer-row > td:first-child {
   padding-left: 0.5rem;
 }
@@ -141,6 +151,34 @@
 
 .THIS form.hasMoreRecord .edit-body-outer {
   padding-bottom: 0;
+}
+
+.THIS .listEditorEditMode-footer_wrap {
+  text-align: center;
+}
+
+.THIS .listEditorEditMode-modal_wrap {
+  height: 640px;
+}
+
+.THIS .listEditorEditMode-isConfirmingSort_wrap {
+  height: 640px;
+}
+
+.THIS .listEditorEditMode-modalFooter_wrap {
+  text-align: center;
+}
+
+.THIS .color-red {
+  color: red;
+}
+
+.THIS .min-width_150 {
+  min-width: 150px;
+}
+
+.THIS .group-button-action {
+  float: right;
 }
 
 @media all and (max-width: 767px) {

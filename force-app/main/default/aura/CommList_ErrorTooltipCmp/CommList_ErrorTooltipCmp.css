@@ -1,5 +1,13 @@
 .THIS .infoTip {
   display: none;
+  width: 20rem;
+  white-space: normal;
+  position: absolute;
+  bottom: 30px;
+}
+
+.THIS .infoIcon {
+  display: inline;
 }
 
 .THIS .infoIcon:hover + .infoTip {
@@ -12,4 +20,15 @@
 
 .THIS .rightSide {
   left: -15px;
+}
+
+.THIS.errotTooltip {
+  position: relative;
+}
+
+@media all and (min-width: 768px) {
+  .THIS .leftSide {
+    right: 30px;
+    bottom: -15px !important;
+  }
 }

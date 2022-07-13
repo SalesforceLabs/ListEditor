@@ -1,6 +1,7 @@
 <aura:component controller="CommList_RelatedListEditorCC">
   <!--attributes from parent-->
   <aura:attribute type="List" name="recordList" />
+  <aura:attribute type="List" name="updateRecordList" />
   <aura:attribute type="String" name="objectName" access="global" default="Account" />
   <aura:attribute type="String" name="fields" access="global" default="Id,Name" />
   <aura:attribute type="String" name="sortedBy" />
@@ -19,6 +20,8 @@
   <aura:attribute type="Boolean" name="enableRecordAction" access="global" default="false" />
   <aura:attribute type="Boolean" name="isHaveNoError" default="true" />
   <aura:attribute type="String" name="titleStyleClass" default="titleBlur" />
+  <aura:attribute type="String" name="imageMaxWidth" />
+  <aura:attribute type="String" name="imageMaxHeight" />
   <!--attributes internal using-->
   <aura:attribute type="String" name="objectLabel" />
   <aura:attribute type="String" name="iconCategory" />
@@ -26,28 +29,36 @@
   <aura:attribute type="String" name="iconName" default="standard:related_list" />
   <aura:attribute type="List" name="columns" default="[]" />
   <aura:attribute type="List" name="data" default="[]" />
-  <aura:attribute type="String" name="keyField" default="id" />
+  <aura:attribute type="String" name="keyField" default="Id" />
   <aura:attribute type="String" name="title" default="Comm List" />
   <aura:attribute type="String" name="conditionsFilterList" />
   <aura:attribute type="String" name="originCondition" />
   <aura:attribute type="boolean" name="isOrderDESC" />
   <aura:attribute type="String" name="orderField" />
   <aura:attribute type="Object" name="rawData" access="PRIVATE" />
-  <aura:attribute type="String" name="selectedRowId" />
   <aura:attribute type="boolean" name="isOpen" default="false" />
+  <aura:attribute type="boolean" name="isFlowExecOpen" default="false" />
   <aura:attribute type="String" name="relationField" />
   <aura:attribute type="boolean" name="isChooseRecordType" default="false" />
   <aura:attribute type="boolean" name="isEditMode" />
   <aura:attribute type="List" name="recordTypes" />
   <aura:attribute type="String" name="recordTypeId" />
   <aura:attribute type="Object" name="pageReference" />
+  <aura:attribute type="Object" name="margeSelectedRows" />
+  <aura:attribute type="Object" name="selectedRows" />
+  <aura:attribute type="String" name="selectedRowId" />
+  <aura:attribute type="List" name="selectedRowIds" />
+  <aura:attribute type="List" name="flowItem" />
+
   <!-- handlers-->
   <aura:handler name="change" value="{!v.recordList}" action="{!c.reloadData}" />
+  <aura:handler name="change" value="{!v.updateRecordList}" action="{!c.updateReloadData}" />
   <aura:registerEvent name="refreshRecordList" type="c:CommList_RefreshRecordListEvent" />
   <aura:registerEvent name="switchMode" type="c:CommList_SwitchModeEvent" />
   <lightning:navigation aura:id="navService" />
 
   <div class="{! v.hasMoreRecord? 'bound-border hasMoreRecord' : 'bound-border'}">
+    <!-- Header Section -->
     <div class="header ver-2">
       <article class="slds-card" aura:id="title">
         <header class="slds-card__header slds-grid">
@@ -104,6 +115,21 @@
                   />
                 </div>
               </aura:if>
+              <aura:if isTrue="{! !empty(v.flowItem) }">
+                <div class="slds-col slds-align-middle slds-m-left_x-small">
+                  <lightning:buttonMenu
+                    alternativeText="Select Flow Automation"
+                    variant="border-filled"
+                    iconName="utility:flow"
+                    class="flowButton"
+                    menuAlignment="right"
+                    onselect="{! c.execFlow }">
+                      <aura:iteration items="{! v.flowItem }" var="item">
+                        <lightning:menuItem value="{! item.value }" label="{! item.label }" />
+                      </aura:iteration>
+                  </lightning:buttonMenu>
+                </div>
+              </aura:if>
             </div>
           </div>
         </header>
@@ -125,26 +151,30 @@
         </div>
       </article>
     </div>
+
+    <!-- Body Section -->
     <div class="slds-is-relative clearfix">
       <lightning:spinner aura:id="loadingSpinner" size="medium" alternativeText="loading" class="slds-hide" />
       <!-- the container element determine the height of the datatable -->
-      <span aura:id="checkSizeBox" style="border: 0; padding: 0; display:inline-block;"></span>
+      <span aura:id="checkSizeBox" class="checkSizeBox"></span>
       <aura:if isTrue="{!v.recordList.length > 0}">
         <div>
-          <lightning:datatable
+          <c:customDatatable
             aura:id="datatable"
             class="datatable"
             columns="{! v.columns }"
             data="{! v.data }"
             keyField="{! v.keyField }"
             showRowNumberColumn="false"
-            hideCheckboxColumn="true"
+            hideCheckboxColumn="{! empty(v.flowItem) }"
             onsort="{!c.updateColumnSorting}"
             sortedBy="{!v.sortedBy}"
             sortedDirection="{!v.sortedDirection}"
             onrowaction="{! c.handleRowAction }"
             columnWidthsMode="auto"
             maxColumnWidth="3000"
+            onrowselection="{! c.onrowselect}"
+            selectedRows="{! v.selectedRowIds }"
           />
         </div>
         <aura:set attribute="else">
@@ -153,6 +183,8 @@
       </aura:if>
     </div>
   </div>
+
+  <!-- Modal Section -->
   <aura:if isTrue="{!v.isOpen}">
     <!--###### MODAL BOX Start######-->
     <section
@@ -179,7 +211,7 @@
         </header>
         <!--###### MODAL BOX BODY Part Start######-->
         <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
-          <p style="text-align: center">{!format($Label.c.CommList_DeleteConfirm, v.objectLabel)}</p>
+          <p class="modal-content-id-1-text">{!format($Label.c.CommList_DeleteConfirm, v.objectLabel)}</p>
         </div>
         <!--###### MODAL BOX FOOTER Part Start ######-->
         <footer class="slds-modal__footer">
@@ -223,7 +255,7 @@
             >{!format($Label.c.CommList_New) + ' ' + v.objectLabel}</h2
           >
         </header>
-        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2" style="overflow: visible;">
+        <div class="slds-modal__content slds-p-around_medium modal-content-id-2" id="modal-content-id-2">
           <div>
             <lightning:layout>
               <lightning:layoutItem size="4" padding="horizontal-small">
@@ -259,6 +291,32 @@
             onclick="{! c.createRecord }"
           />
         </footer>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </aura:if>
+
+  <!-- Flow Modal -->
+  <aura:if isTrue="{!v.isFlowExecOpen}">
+    <section
+      role="dialog"
+      tabindex="-1"
+      aria-labelledby="modal-heading-03"
+      aria-modal="true"
+      aria-describedby="modal-content-id-3"
+      class="slds-modal slds-fade-in-open"
+    >
+      <div class="slds-modal__container">
+        <lightning:buttonIcon
+          iconName="utility:close"
+          onclick="{! c.closeModel }"
+          alternativeText="Close"
+          variant="bare-inverse"
+          class="slds-modal__close"
+        />
+        <div class="slds-modal__content slds-p-around_medium slds-modal__content_headless" id="modal-content-id-3">
+          <lightning:flow aura:id="flow" onstatuschange="{!c.statusChange}"/>
+        </div>
       </div>
     </section>
     <div class="slds-backdrop slds-backdrop_open"></div>

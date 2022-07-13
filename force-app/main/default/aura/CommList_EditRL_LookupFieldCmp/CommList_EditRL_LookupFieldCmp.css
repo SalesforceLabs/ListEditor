@@ -12,6 +12,20 @@
   background-color: #f3f2f2;
 }
 
+.THIS .lookField-pill {
+  width: 100%;
+  background-color: white;
+}
+
+.THIS .lookField-pill.disabled {
+  background-color: rgb(243,242,242);
+}
+
+.THIS .lookField-pill_button {
+  margin-bottom: 2px;
+  margin-left: 2px;
+}
+
 .THIS lightning-icon.slds-icon--small.slds-icon-standard-case.slds-icon_container.search {
   float: left;
   margin-right: 0.25rem;

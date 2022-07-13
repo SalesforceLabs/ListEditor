@@ -4,6 +4,9 @@
   <aura:attribute name="formatType" type="String" default="text" />
   <aura:attribute name="scale" type="Double" default="0" />
   <aura:attribute name="disabled" type="Boolean" default="false" />
+  <aura:attribute name="isEdited" type="Boolean" default="false" />
+  <aura:attribute name="inputWrappedClass" type="String" default="slds-form-element" />
+  <aura:attribute name="inputClass" type="String" default="slds-input" />
   <aura:attribute name="class" type="String" />
   <aura:attribute name="objectFields" type="List" />
   <aura:attribute
@@ -58,7 +61,7 @@
             />
           </div>
           <aura:set attribute="else">
-            <div class="slds-form-element">
+            <div class="{! v.inputWrappedClass }">
               <div class="{!v.errorMsg ? 'error-item' : 'hidden-item'}">{!v.errorMsg}</div>
               <div
                 class="slds-form-element__control slds-input-has-icon slds-input-has-icon_right"
@@ -67,7 +70,7 @@
                 <aura:if isTrue="{!v.fieldType == 'TEXTAREA'}">
                   <lightning:textarea
                     aura:id="myStandardInput"
-                    class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+                    class="{! and(empty(v.value), v.isRequired) ? v.inputClass + ' slds-has-error' : v.inputClass }"
                     value="{!v.value}"
                     onchange="{!c.onChange}"
                     placeholder="{!v.placeholder}"
@@ -76,17 +79,10 @@
                   />
                   <aura:set attribute="else">
                     <aura:if isTrue="{!v.subType == 'number'}">
-                      <!-- <div class="slds-form-element">
-                        <div class="slds-form-element__control">
-                            <input type="number" aura:id="myStandardInput"  required="{!v.isRequired}" value="{!v.value}" onchange="{!c.onChange}"
-                            placeholder="{!v.placeholder}" formatter="{!v.formatType}" step="{!v.scale}" onblur="{!c.lostFocus}" onkeyup="{!c.handleInputNumber}"
-                            class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }" />
-                        </div>
-                    </div> -->
                       <div onkeydown="{!c.handleKeyUp }">
                         <lightning:input
                           aura:id="myStandardInput"
-                          class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+                          class="{! and(empty(v.value), v.isRequired) ? v.inputClass + ' slds-has-error' : v.inputClass }"
                           value="{!v.value}"
                           type="{!v.subType}"
                           onchange="{!c.handleInputNumber}"
@@ -117,7 +113,7 @@
                       <aura:set attribute="else">
                         <lightning:input
                           aura:id="myStandardInput"
-                          class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+                          class="{! and(empty(v.value), v.isRequired) ? v.inputClass + ' slds-has-error' : v.inputClass }"
                           value="{!v.value}"
                           type="{!v.subType}"
                           onchange="{!c.onChange}"
@@ -153,11 +149,11 @@
       </aura:if>
 
       <aura:if isTrue="{!v.type=='picklist'}">
-        <div class="slds-form-element">
+        <div class="{! v.inputWrappedClass }">
           <div class="slds-form-element__control">
             <div class="slds-select_container" aura:id="inputContainer">
               <lightning:select
-                name="select1"
+                name="myPicklist"
                 aura:id="myPicklist"
                 required="{!v.isRequired}"
                 onchange="{!c.onChange}"
@@ -178,7 +174,7 @@
         </div>
       </aura:if>
       <aura:if isTrue="{!v.type=='multipicklist'}">
-        <div class="slds-form-element">
+        <div class="{! v.inputWrappedClass }">
           <div class="slds-form-element__control">
             <div class="slds-select_container" aura:id="inputContainer">
               <c:CommList_MultiSelect options="{!v.selectOptions}" selectedItems="{!v.value}" />
@@ -187,7 +183,7 @@
         </div>
       </aura:if>
       <aura:if isTrue="{!v.type=='checkbox'}">
-        <div class="slds-form-element">
+        <div class="{! v.inputWrappedClass }">
           <div class="slds-form-element__control" aura:id="inputContainer">
             <lightning:input
               type="checkbox"
@@ -202,11 +198,11 @@
         </div>
       </aura:if>
       <aura:if isTrue="{!and(v.type=='datetime', !v.isLocked)}">
-        <div class="slds-form-element">
+        <div class="{! v.inputWrappedClass }">
           <div class="slds-form-element__control" aura:id="inputContainer">
             <lightning:input
               aura:id="myStandardInput"
-              class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+              class="{! and(empty(v.value), v.isRequired) ? v.inputClass + ' slds-has-error' : v.inputClass }"
               type="datetime-local"
               label="no label"
               value="{!v.value}"
@@ -219,11 +215,11 @@
         </div>
       </aura:if>
       <aura:if isTrue="{!v.type=='time'}">
-        <div class="slds-form-element">
+        <div class="{! v.inputWrappedClass }">
           <div class="slds-form-element__control" aura:id="inputContainer">
             <lightning:input
               aura:id="myStandardInput"
-              class="{! and(empty(v.value), v.isRequired) ? 'slds-input slds-has-error' : 'slds-input' }"
+              class="{! and(empty(v.value), v.isRequired) ? v.inputClass + ' slds-has-error' : v.inputClass }"
               type="time"
               label="no label"
               value="{!v.value}"
@@ -236,7 +232,7 @@
         </div>
       </aura:if>
       <aura:if isTrue="{!v.type=='calculated'}">
-        <div class="slds-form-element">
+        <div class="{! v.inputWrappedClass }">
           <div class="slds-form-element__control" aura:id="inputContainer">
             <lightning:icon
               iconName="utility:apex"

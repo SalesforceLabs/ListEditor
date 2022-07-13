@@ -18,6 +18,9 @@
   getColumnDefinitions: function(component, recordList) {
     let columns = [];
     let spinner = component.find('loadingSpinner');
+    const imageMaxHeight = component.get('v.imageMaxHeight');
+    const imageMaxWidth = component.get('v.imageMaxWidth');
+
     $A.util.removeClass(spinner, 'slds-hide');
     const enableRecordAction = component.get('v.enableRecordAction');
     // create a server side action.
@@ -231,7 +234,6 @@
           } else if (result[i].type.toLowerCase() == 'url') {
             result[i].type = 'url';
 
-            console.info(result[i]);
             let labelValue = { fieldName: result[i].apiName };
             let typeAttribute = { target: '_blank', label: labelValue };
 
@@ -243,6 +245,16 @@
               type: result[i].type.toLowerCase(),
               typeAttributes: result[i].typeAttribute,
               sortable: true
+            };
+          } else if (result[i].type == 'calculated') {
+            column = {
+              label: result[i].label,
+              fieldName: result[i].apiName,
+              type: 'datattableHtml',
+              sortable: true,
+              typeAttributes: {
+                viewType: { fieldName: 'viewType' }
+              }
             };
           } else {
             column = {
@@ -257,6 +269,7 @@
             columns.push(column);
           }
         }
+
         //Load data to display
         let upperLimit = recordList.length;
         let linksReferFieldsToFix = [];
@@ -377,11 +390,11 @@
 
               if (dom != null) {
                 dom.classList.remove('slds-hide');
-                let initWidthCols = that.getWidthCols(recordList, dom);
+                let initWidthCols = that.getWidthCols(recordList, dom, columns, imageMaxWidth);
                 dom.style.width = '100%';
                 let widthBlank = dom.offsetWidth;
                 dom.style.width = 'auto';
-                that.setWidthColumns(columns, initWidthCols, dom, widthBlank);
+                that.setWidthColumns(columns, initWidthCols, dom, widthBlank, imageMaxWidth);
                 dom.classList.add('slds-hide');
               }
 
@@ -526,7 +539,8 @@
         let compEvent = component.getEvent('refreshRecordList');
 
         compEvent.setParams({
-          parentField: component.get('v.parentField')
+          parentField: component.get('v.parentField'),
+          type: 'refresh'
         });
 
         compEvent.fire();
@@ -539,14 +553,17 @@
     // enqueue the action
     $A.enqueueAction(action);
   },
-  getWidthCols: function(records, dom) {
+  getWidthCols: function(records, dom, columns, imageMaxWidth) {
     let widthCols = {};
     let widthCurrentField = 0;
 
     records.forEach((record) => {
       for (let field in record) {
         if (typeof record[field] != 'object') {
-          widthCurrentField = this.getWidthTextOnDOM(dom, record[field]);
+          let col = columns.filter((item) => {
+            return item.fieldName == field;
+          });
+          widthCurrentField = this.getWidthTextOnDOM(dom, record[field], col && col[0] && col[0].typeAttributes, imageMaxWidth);
 
           if (widthCols[field]) {
             widthCols[field] = widthCurrentField > widthCols[field] ? widthCurrentField : widthCols[field];
@@ -559,13 +576,13 @@
 
     return widthCols;
   },
-  setWidthColumns: function(cols, widthCols, dom, widthBlank) {
+  setWidthColumns: function(cols, widthCols, dom, widthBlank, imageMaxWidth) {
     let fieldCompared = '';
     let widthLable = 0;
 
     cols.forEach((col) => {
       fieldCompared = col.typeAttributes && col.typeAttributes.label ? col.typeAttributes.label.fieldName : col.fieldName;
-      widthLable = this.getWidthTextOnDOM(dom, col.label);
+      widthLable = this.getWidthTextOnDOM(dom, col.label, col.typeAttributes, imageMaxWidth);
 
       if (widthCols[fieldCompared]) {
         col.initialWidth = widthLable > widthCols[fieldCompared] ? widthLable : widthCols[fieldCompared];
@@ -580,9 +597,18 @@
       cols[cols.length - 2].initialWidth = null;
     }
   },
-  getWidthTextOnDOM: function(dom, text) {
+  getWidthTextOnDOM: function(dom, text, fieldCompared, imageMaxWidth) {
+    let offsetMargin = 0;
     dom.innerHTML = text;
-    return dom.offsetWidth + 50;
+
+    //Case Calcurated
+    if (fieldCompared && fieldCompared.viewType && imageMaxWidth) {
+      dom.style.maxWidth = imageMaxWidth;
+    } else {
+      offsetMargin = 50;
+    }
+
+    return dom.offsetWidth + offsetMargin;
   },
   fixLink: function(component, recordId, objectName) {
     let navService = component.find('navService');

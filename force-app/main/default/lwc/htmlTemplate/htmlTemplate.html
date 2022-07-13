@@ -1,0 +1,8 @@
+<template>
+  <template if:true={isHtml}>
+    <lightning-formatted-rich-text value={htmlBody}></lightning-formatted-rich-text>
+  </template>
+  <template if:true={isText}>
+    <lightning-formatted-text value={htmlBody}></lightning-formatted-text>
+  </template>
+</template>

@@ -1,23 +1,32 @@
-<design:component label="Comm List">
-  <design:attribute name="objectName" label="オブジェクト" description="API name of the Object you want to show data." required="true" />
-  <design:attribute name="fields" label="表示項目" description="API name of the columns you want to display." required="true" />
-  <design:attribute name="orderField" label="デフォルトのソート項目" />
-  <design:attribute name="isOrderDESC" label="降順でソート" default="true" />
-  <!-- <design:attribute name='isScrollable' label='Scrollable' default='true'/> -->
-  <design:attribute name="viewRowsToLoad" label="表示行数" description="API name of the row you want to display in View mode." required="true" />
-  <design:attribute name="parentField" label="親参照項目名(オプション)" description="API name of the default parent field you want to select from child Object" required="false" />
-  <design:attribute name="conditionsFilterList" label="リストの絞り込み条件(SOQL filter)" description="(例：Name='abc' AND Email= 'abc@bvc.com' OR Amount > 1000)" required="false" />
-  <design:attribute name="defaultValueAddList" label="項目ごとのデフォルト値(json形式)" description='(例：{"Name":"abc","IsKeyman__c":true,"CategoryPickList__c":"「api_name」"})' required="false" />
-  <design:attribute name="defaultLabel" label="リストの表示ラベル名" description="Default label related list" required="false" />
-  <design:attribute name="enableEditMode" label="編集を許可しない" description="If selected will hide button edit on component related list" />
-  <design:attribute name="enableAddMode" label="新規作成を許可しない" description="If selected will hide button add on component related list" />
-  <design:attribute name="enableRefresh" label="リロードを許可しない" description="If selected will hide button refresh on component related list" />
-  <design:attribute name="enableSearchArea" label="テキスト検索を許可しない" description="If selected will hide input search on component related list" />
-  <design:attribute name="enableRecordAction" label="レコードアクションを許可しない" description="If selected will hide button recordAction on component record column" />
-  <design:attribute name="enableDltBtnInEdit" label="編集画面で削除を許可しない" description="If selected will hide button delete on component Edit view" />
-  <design:attribute name="brandBgColor" label="見出し背景色" description="" />
-  <design:attribute name="brandTxtColor" label="見出し文字色" description="" />
-  <design:attribute name="brandRowColor" label="偶数行の背景色" description="" />
-  <design:attribute name="iconFillColor" label="アイコンカラー" description="" />
-  <design:attribute name="iconBgColor" label="アイコン背景色" description="" />
+<design:component label="List Editor">
+  <!-- Setting -->
+  <design:attribute name="objectName" label="Object Api Name" description="API name of the Object you want to show data." required="true" />
+  <design:attribute name="fields" label="Display Fields" description="API name of the columns you want to display." required="true" />
+  <design:attribute name="orderField" label="Default order field" />
+  <design:attribute name="isOrderDESC" label="Descending order" default="true" />
+  <design:attribute name="viewRowsToLoad" label="Number of lines to display" description="API name of the row you want to display in View mode." required="true" />
+  <design:attribute name="parentField" label="Parent reference field name (optional)" description="API name of the default parent field you want to select from child Object" required="false" />
+  <design:attribute name="conditionsFilterList" label="List filter (SOQL filter)" description="(Ex：Name='abc' AND Email= 'abc@bvc.com' OR Amount > 1000)" required="false" />
+  <design:attribute name="defaultValueAddList" label="Default value for each field (json format)" description='(Ex：{"Name":"abc","IsKeyman__c":true,"CategoryPickList__c":"「api_name」"})' required="false" />
+  <design:attribute name="defaultLabel" label="List Label Name" description="Default label related list" required="false" />
+
+  <!-- Function -->
+  <design:attribute name="flowName" label="Flow Name" description="" />
+  <design:attribute name="enableEditMode" label="Do not allow editing" description="If selected will hide button edit on component related list" />
+  <design:attribute name="enableAddMode" label="Do not allow new creation" description="If selected will hide button add on component related list" />
+  <design:attribute name="enableRefresh" label="Do not allow reload" description="If selected will hide button refresh on component related list" />
+  <design:attribute name="enableSearchArea" label="Do not allow text search" description="If selected will hide input search on component related list" />
+  <design:attribute name="enableRecordAction" label="Do not allow record actions" description="If selected will hide button recordAction on component record column" />
+  <design:attribute name="enableDltBtnInEdit" label="Do not allow deletion on the edit" description="If selected will hide button delete on component Edit view" />
+
+  <!-- Design -->
+  <design:attribute name="brandBgColor" label="Heading Background color" description="" />
+  <design:attribute name="brandTxtColor" label="Heading text color" description="" />
+  <design:attribute name="brandRowColor" label="Even row background color" description="" />
+  <design:attribute name="iconFillColor" label="Icon color" description="" />
+  <design:attribute name="iconBgColor" label="Icon background color" description="" />
+  <design:attribute name="imageMaxHeight" label="Image max height" description="Specifies the max-width of the image in the table. Ex: 200px or 100%" />
+  <design:attribute name="imageMaxWidth" label="Image max width" description="Specifies the max-height of the image in the table. Ex: 200px or 100%" />
+  <design:attribute name="imageMinHeight" label="Image min height" description="Specifies the min-width of the image in the table. Ex: 200px or 100%" />
+  <design:attribute name="imageMinWidth" label="Image min width" description="Specifies the min-height of the image in the table. Ex: 200px or 100%" />
 </design:component>
