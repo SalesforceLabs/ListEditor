@@ -333,11 +333,22 @@
     }
   },
   loadMoreAction: function (cmp, event, helper) {
-    const loadMoreAction = cmp.getEvent('loadMoreAction');
+    if (cmp.get('v.isUnsavedRecords')) {
+      cmp.set('v.isConfirmingLoad', true);
+    } else {
+      $A.enqueueAction(cmp.get('c.confirmLoad'));
+    }
+  },
+  confirmLoad: function(cmp, event, helper) {
     let lstTargetRecords = helper.prepareRecordsToSave(cmp, event, helper);
-    const editedRecordList = [...lstTargetRecords.recInserts, ...lstTargetRecords.recUpdates];
-    cmp.set('v.editedRecordList', editedRecordList);
+    const loadMoreAction = cmp.getEvent('loadMoreAction');
 
+    cmp.set('v.editedRecordList', lstTargetRecords);
     loadMoreAction.fire();
-  }
+
+    $A.enqueueAction(cmp.get('c.closeLoadConfirmationModal'));
+  },
+  closeLoadConfirmationModal: function(cmp, event, helper) {
+    cmp.set('v.isConfirmingLoad', false);
+  },
 });

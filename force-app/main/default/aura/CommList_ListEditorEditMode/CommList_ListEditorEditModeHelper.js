@@ -1,6 +1,6 @@
 ({
   getRelatedListForEdit: function(component, objectName, fields, sObjectName, parentField, helper, event) {
-    var editedRecords = component.get('v.editedRecordList');
+    var editedRecordList = component.get('v.editedRecordList');
     var action = component.get('c.getRelatedList');
     var params = {
       sObjectName: sObjectName,
@@ -16,12 +16,24 @@
       if (state === 'SUCCESS') {
         var returnValue = an.getReturnValue();
         component.set('v.relatedList', returnValue);
+        var insertData = editedRecordList && editedRecordList.recInserts || [];
+        var deleteData = editedRecordList && editedRecordList.recDeletes || [];
+        var updateData = editedRecordList && editedRecordList.recUpdates || [];
 
         if (!component.get('v.filterFields')) helper.buildFilterFields(component, returnValue);
 
         var records = component.get('v.recordList');
         var currentRecords = component.get('v.records');
         component.set('v.requiredFields', returnValue.requiredFields);
+
+        /*
+        if (editedRecordList && insertData.length > 0) {
+          insertData.forEach((data, idx) => {
+            records.splice(0 + idx, 0, data);
+          });
+        }
+        */
+
         var rowsWithCells = helper.prepareRows(component, records, -1, currentRecords);
         var hasMoreRecord = component.get('v.hasMoreRecord');
         var lblRecShow = hasMoreRecord ? records.length + '+' : rowsWithCells.length;
@@ -33,8 +45,20 @@
           component.set('v.title', '<span class="header-label">' + returnValue.labelName + '</span><span class="count">(' + lblRecShow + ')</span>');
         }
 
-        if (editedRecords) {
-          editedRecords.forEach((data) => {
+        if (editedRecordList) {
+          deleteData.forEach((data) => {
+            const searchId = data.Id;
+
+            const targetIndex = rowsWithCells.findIndex((targetRecord) => {
+              return targetRecord.Id === searchId;
+            });
+
+            if (targetIndex > -1) {
+              rowsWithCells.splice(targetIndex, 1);
+            }
+          });
+
+          updateData.forEach((data) => {
             const searchId = data.Id;
 
             const target = rowsWithCells.find((targetRecord) => {
@@ -58,6 +82,7 @@
           });
         }
 
+        console.info('rowsWithCells', rowsWithCells);
         component.set('v.records', rowsWithCells);
         component.set('v.numbRecLoaded', rowsWithCells.length);
         component.set('v.defaultRecordTypeId', returnValue.defaultRecordTypeId);
@@ -95,7 +120,7 @@
     var objectName = component.get('v.objectName').toLowerCase();
     var rl = component.get('v.relatedList');
     var requiredFields = component.get('v.requiredFields');
-    var editedRecords = component.get('v.editedRecordList');
+    var editedRecordList = component.get('v.editedRecordList');
 
     rows.forEach((row, rowIndex) => {
       row.DMLType = 'toUpdate';
@@ -120,7 +145,7 @@
         var oldCell = oldRecord && oldRecord.cells.find(oldData => {
           return oldData.fieldApiName === field.fieldApiName;
         });
-        cell.isEdited = editedRecords && editedRecords.length > 0
+        cell.isEdited = editedRecordList && (editedRecordList.recUpdates.length > 0 || editedRecordList.recInserts.length > 0 || editedRecordList.deleteData.length > 0)
                         && oldCell && oldCell.isEdited ? true : false;
 
         for (var k = 1; k < fieldApiNameSplit.length; k++) {

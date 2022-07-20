@@ -36,6 +36,7 @@
   <aura:attribute type="boolean" name="isScrollable" default="false" />
   <aura:attribute type="Boolean" name="isLoading" default="false" />
   <aura:attribute type="Boolean" name="isConfirmingSort" default="false" />
+  <aura:attribute type="Boolean" name="isConfirmingLoad" default="false" />
   <aura:attribute type="String" name="sortingFieldConfirmed" default="" />
   <aura:attribute type="String" name="iconCategory" />
   <aura:attribute type="String" name="iconPattern" />
@@ -353,6 +354,7 @@
       </div>
     </footer>
   </div>
+
   <div class="listEditorEditMode-modal_wrap">
     <section
       role="dialog"
@@ -401,6 +403,8 @@
   <aura:if isTrue="{!v.isCreateRecord}">
     <c:CommList_CreateRecordModal objectApiName="{!v.objectToCreate}" isOpen="{!v.isCreateRecord}" />
   </aura:if>
+
+  <!-- Sort -->
   <aura:if isTrue="{!v.isConfirmingSort}">
     <div class="listEditorEditMode-isConfirmingSort_wrap">
       <section
@@ -438,6 +442,54 @@
                 variant="brand"
                 label="{!format($Label.c.CommList_SortButton)}"
                 onclick="{! c.confirmSorting }"
+                class="slds-m-bottom_xx-small"
+              />
+            </div>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop--open"></div>
+    </div>
+  </aura:if>
+
+  <!-- Load -->
+  <aura:if isTrue="{!v.isConfirmingLoad}">
+    <div class="listEditorEditMode-isConfirmingSort_wrap">
+      <section
+        role="dialog"
+        tabindex="-1"
+        aria-labelledby="modal-heading-01"
+        aria-modal="true"
+        aria-describedby="modal-content-id-2"
+        class="slds-modal slds-fade-in-open"
+      >
+        <div class="slds-modal__container">
+          <header class="slds-modal__header">
+            <lightning:buttonIcon
+              iconName="utility:close"
+              class="slds-modal__close"
+              variant="border-filled"
+              title="{!format($Label.c.CommList_CloseButton)}"
+              alternativeText="{!format($Label.c.CommList_CloseButton)}"
+              onclick="{!c.closeLoadConfirmationModal}"
+            />
+            <div class="slds-text-heading_medium">{!format($Label.c.CommList_BulkEdit)}</div>
+          </header>
+          <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+            <p>{!format($Label.c.CommList_ConfirmLoad)}</p>
+          </div>
+          <footer class="slds-modal__footer">
+            <div class="slds-p-around_medium listEditorEditMode-modalFooter_wrap">
+              <lightning:button
+                variant="neutral"
+                label="{!format($Label.c.CommList_NoLabel)}"
+                class="slds-m-bottom_xx-small"
+                onclick="{! c.closeLoadConfirmationModal }"
+              />
+              <lightning:button
+                variant="brand"
+                label="{!format($Label.c.CommList_SortButton)}"
+                onclick="{! c.confirmLoad }"
                 class="slds-m-bottom_xx-small"
               />
             </div>
