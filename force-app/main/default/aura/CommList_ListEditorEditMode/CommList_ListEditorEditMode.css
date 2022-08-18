@@ -1,4 +1,10 @@
-.THIS .margin-top-neg-1px {
+/**
+ * Copyright 2020 salesforce.com, inc
+ * All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause
+ * For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+ */
+ .THIS .margin-top-neg-1px {
   margin-top: -1px;
 }
 
@@ -210,6 +216,10 @@
     border: 1px solid rgb(221, 219, 218);
     padding: 0;
     margin-top: 1.2rem;
+  }
+
+  .THIS tbody .editer-row td[data-drag-id] {
+    display: none;
   }
 
   .THIS tbody > .editer-row:first-child {

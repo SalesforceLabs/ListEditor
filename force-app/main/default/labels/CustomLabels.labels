@@ -1,4 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+ Copyright 2020 salesforce.com, inc
+ All rights reserved.
+ SPDX-License-Identifier: BSD-3-Clause
+ For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+-->
 <CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
     <labels>
         <fullName>CommList_BulkEdit</fullName>
@@ -30,7 +36,8 @@
         <language>ja</language>
         <protected>true</protected>
         <shortDescription>CommList_ConfirmClose</shortDescription>
-        <value>編集されたデータがあります。保存せずに閉じても宜しいですか？</value>
+        <value
+    >編集されたデータがあります。保存せずに閉じても宜しいですか？</value>
     </labels>
     <labels>
         <fullName>CommList_ConfirmSort</fullName>
@@ -38,7 +45,8 @@
         <language>ja</language>
         <protected>true</protected>
         <shortDescription>CommList_ConfirmSort</shortDescription>
-        <value>ソートをかけると変更されたデータがクリアされますが宜しいでしょうか？</value>
+        <value
+    >ソートをかけると変更されたデータがクリアされますが宜しいでしょうか？</value>
     </labels>
     <labels>
         <fullName>CommList_CopyRow</fullName>
@@ -86,7 +94,8 @@
         <language>ja</language>
         <protected>true</protected>
         <shortDescription>CommList_ExceptionGetRecord</shortDescription>
-        <value>レコードの取得中に例外が発生しました。アプリケーションビルダー上で表示項目設定またはフィルター設定が正しいかどうかをご確認ください。</value>
+        <value
+    >レコードの取得中に例外が発生しました。アプリケーションビルダー上で表示項目設定またはフィルター設定が正しいかどうかをご確認ください。</value>
     </labels>
     <labels>
         <fullName>CommList_LoadMore</fullName>
@@ -158,7 +167,8 @@
         <language>ja</language>
         <protected>true</protected>
         <shortDescription>CommList_SaveError</shortDescription>
-        <value>エラーで保存できなかったデータがあります。各行右端のエラーを確認ください。</value>
+        <value
+    >エラーで保存できなかったデータがあります。各行右端のエラーを確認ください。</value>
     </labels>
     <labels>
         <fullName>CommList_SaveSuccess</fullName>
