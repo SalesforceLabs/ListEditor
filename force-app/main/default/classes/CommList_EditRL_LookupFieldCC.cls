@@ -27,7 +27,8 @@ public with sharing class CommList_EditRL_LookupFieldCC {
       // Retrieving data
       Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
       for (String objectName : objectsToSearch) {
-        Schema.SObjectType leadSchema = schemaMap.get(objectName);
+        String sanitizeName = String.escapeSingleQuotes(objectName);
+        Schema.SObjectType leadSchema = schemaMap.get(sanitizeName);
         if (leadSchema == null) {
           return new ResultDataLookup(null, null, null, null);
         }
@@ -49,7 +50,7 @@ public with sharing class CommList_EditRL_LookupFieldCC {
           'SELECT Id, ' +
           nameField +
           ' FROM ' +
-          objectName +
+          sanitizeName +
           ' WHERE Id = \'' +
           String.escapeSingleQuotes(recordId) +
           '\'';
@@ -108,10 +109,11 @@ public with sharing class CommList_EditRL_LookupFieldCC {
     String sanitizedSearchString = String.escapeSingleQuotes(searchString);
     String strFieldReturn = '';
     for (String objectName : objectsToSearch) {
-      if (objectName == 'Case') {
-        strFieldReturn += objectName + '(id,Subject,CaseNumber), ';
+      String sanitizeName = String.escapeSingleQuotes(objectName);
+      if (sanitizeName == 'Case') {
+        strFieldReturn += sanitizeName + '(id,Subject,CaseNumber), ';
       } else {
-        strFieldReturn += objectName + '(id,name), ';
+        strFieldReturn += sanitizeName + '(id,name), ';
       }
     }
     if (strFieldReturn.endsWith(', ')) {

@@ -70,15 +70,16 @@ public with sharing class CommList_RelatedListEditorCC {
     String orderField
   ) {
     List<ColumnInfo> parentFieldList = new List<ColumnInfo>();
+    String sObjectName = String.escapeSingleQuotes(objectName);
+    String tObjectName = String.escapeSingleQuotes(objectName);
     Schema.DescribeSObjectResult dsr = Schema.getGlobalDescribe()
-      .get(objectName)
+      .get(sObjectName)
       .getDescribe();
     Map<String, Schema.SObjectField> fieldMap = dsr.fields.getMap();
     String orderName = '';
     String firstParent;
     Boolean parentMatched = false;
-    String sObjectName = objectName;
-    Boolean hasParsonalAccount = (objectName.equalsIgnoreCase('account') &&
+    Boolean hasParsonalAccount = (sObjectName.equalsIgnoreCase('account') &&
     fieldMap.get('LastName') != null);
     String relationRegExp = '__c$';
 
@@ -192,9 +193,9 @@ public with sharing class CommList_RelatedListEditorCC {
           result.fieldsLocation.add(fieldLocation);
         }
       } else if (
-        (('account'.equalsIgnoreCase(objectName) && hasParsonalAccount) ||
-        'contact'.equalsIgnoreCase(objectName) ||
-        'lead'.equalsIgnoreCase(objectName)) &&
+        (('account'.equalsIgnoreCase(tObjectName) && hasParsonalAccount) ||
+        'contact'.equalsIgnoreCase(tObjectName) ||
+        'lead'.equalsIgnoreCase(tObjectName)) &&
         'name'.endsWithIgnoreCase(strFld.getDescribe().getName())
       ) {
         fields += (', FirstName, LastName');
@@ -227,7 +228,7 @@ public with sharing class CommList_RelatedListEditorCC {
       : ' ASC NULLS FIRST';
     String strOrder = String.isBlank(orderName)
       ? ' ORDER BY LastModifiedDate' + order
-      : ' ORDER BY ' + orderName + order + ', LastModifiedDate DESC ';
+      : ' ORDER BY ' + String.escapeSingleQuotes(orderName) + order + ', LastModifiedDate DESC ';
 
     String strFilter = replaceQueryFilter(filter);
     Integer recLimit = Integer.valueOf(limitRecs);
@@ -238,7 +239,7 @@ public with sharing class CommList_RelatedListEditorCC {
 
     if (searchText != null && !searchText.equals('')) {
       SObjectType objectTypeData = ((SObject) (Type.forName(
-            'Schema.' + objectName
+            'Schema.' + tObjectName
           )
           .newInstance()))
         .getSObjectType();
@@ -314,14 +315,14 @@ public with sharing class CommList_RelatedListEditorCC {
     if (
       sObjectName.equalsIgnoreCase('Contact') &&
       parentField == 'ContactId' &&
-      (objectName.equalsIgnoreCase('Opportunity') ||
-      objectName.equalsIgnoreCase('Contract'))
+      (tObjectName.equalsIgnoreCase('Opportunity') ||
+      tObjectName.equalsIgnoreCase('Contract'))
     ) {
       String relateField;
 
-      if (objectName.equalsIgnoreCase('opportunity')) {
+      if (tObjectName.equalsIgnoreCase('opportunity')) {
         relateField = 'OpportunityId';
-      } else if (objectName.equalsIgnoreCase('contract')) {
+      } else if (tObjectName.equalsIgnoreCase('contract')) {
         relateField = 'ContractId';
       }
 
@@ -332,7 +333,7 @@ public with sharing class CommList_RelatedListEditorCC {
           ' WHERE Id IN (SELECT ' +
           relateField +
           ' FROM ' +
-          objectName +
+          tObjectName +
           'ContactRole WHERE ContactId = \'' +
           String.escapeSingleQuotes(recordId) +
           '\')';
@@ -350,7 +351,7 @@ public with sharing class CommList_RelatedListEditorCC {
         'SELECT ' +
         fields +
         ' FROM ' +
-        objectName +
+        tObjectName +
         ' ' +
         contactWhere +
         strFilter +
@@ -359,7 +360,7 @@ public with sharing class CommList_RelatedListEditorCC {
         ' LIMIT ' +
         (recLimit + 1) +
         ' OFFSET ' +
-        offset;
+        String.escapeSingleQuotes(offset);
     } else {
       String SoqlWhere = '';
       String IdField = 'Id';
@@ -371,7 +372,7 @@ public with sharing class CommList_RelatedListEditorCC {
       if (!String.isEmpty(recordId)) {
         SoqlWhere +=
           ' WHERE ' +
-          IdField +
+          String.escapeSingleQuotes(IdField) +
           ' = \'' +
           String.escapeSingleQuotes(recordId) +
           '\'';
@@ -389,7 +390,7 @@ public with sharing class CommList_RelatedListEditorCC {
         'SELECT ' +
         fields +
         ' FROM ' +
-        objectName +
+        tObjectName +
         ' ' +
         SoqlWhere +
         strFilter +
@@ -398,7 +399,7 @@ public with sharing class CommList_RelatedListEditorCC {
         ' LIMIT ' +
         (recLimit + 1) +
         ' OFFSET ' +
-        offset;
+        String.escapeSingleQuotes(offset);
     }
 
     if (String.isBlank(query)) {
@@ -485,7 +486,7 @@ public with sharing class CommList_RelatedListEditorCC {
     if (String.isBlank(filter)) {
       return '';
     }
-    return ' AND ' + filter.replace('"', '\'') + ' ';
+    return ' AND ' + String.escapeSingleQuotes(filter).replace('"', '\'') + ' ';
   }
   private static String checkAndRemoveInvalidRecordType(
     String fields,
@@ -962,7 +963,7 @@ public with sharing class CommList_RelatedListEditorCC {
               'SELECT Id,' +
               String.join(listEncryptedField, ',') +
               ' FROM ' +
-              objectName +
+              String.escapeSingleQuotes(objectName) +
               ' WHERE Id IN :listId '
             )
           );

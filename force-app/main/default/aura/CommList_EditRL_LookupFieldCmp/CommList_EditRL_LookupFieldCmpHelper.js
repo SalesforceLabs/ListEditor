@@ -69,7 +69,7 @@
    */
   handleSelection: function(cmp, event) {
     var objectId = this.resolveId(event.currentTarget.id);
-    var objectLabel = event.currentTarget.innerText;
+    var objectLabel = event.currentTarget.textContent;
     var iconName = event.currentTarget.dataset.iconname;
     this.setSelectedValueAndCloseSearchResultPanel(cmp, objectId, objectLabel, iconName);
   },
