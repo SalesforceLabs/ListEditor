@@ -82,7 +82,8 @@
         component.set('v.loadMoreOffset', recordList.length);
         component.set('v.recordList', recordList);
       } else if (a.getState() === 'ERROR') {
-        this.handleListEditorException(component, $A.get('$Label.c.CommList_ExceptionGetRecord'));
+        console.error(this.getComponentTitle(component), a.getError()[0] || a.getError());
+        this.handleListEditorException(component, `${$A.get('$Label.c.CommList_ExceptionGetRecord')} ===> [${a.getError()[0].exceptionType}] ${a.getError()[0].message}`, 'sticky');
       }
       component.set('v.isLoading', false);
     });
@@ -117,14 +118,17 @@
     $A.enqueueAction(action);
   },
 
-  handleListEditorException: function(component, exceptionMessage) {
+  handleListEditorException: function(component, exceptionMessage, mode) {
     const title = this.getComponentTitle(component);
     const toastEvent = $A.get('e.force:showToast');
+    const popupmode = mode || 'dismissible';
 
     toastEvent.setParams({
       title: `Threw exception in CommList: ${title}`,
       message: exceptionMessage,
-      type: 'error'
+      type: 'error',
+      duration: 5000,
+      mode: popupmode
     });
 
     toastEvent.fire();

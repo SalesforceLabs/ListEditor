@@ -486,7 +486,7 @@ public with sharing class CommList_RelatedListEditorCC {
     if (String.isBlank(filter)) {
       return '';
     }
-    return ' AND ' + String.escapeSingleQuotes(filter).replace('"', '\'') + ' ';
+    return ' AND ' + String.escapeSingleQuotes(filter.replace('"', '\'')).replaceAll('(\\\\\')+', '\'') + ' ';
   }
   private static String checkAndRemoveInvalidRecordType(
     String fields,
