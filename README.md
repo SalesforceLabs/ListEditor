@@ -11,6 +11,6 @@
 日本語  
 [https://salesforce.quip.com/ysAYAmh31aTG](https://salesforce.quip.com/ysAYAmh31aTG)  
   
-## Click here for detailes setup manual
+## Check here setup detail manuals
 English  
 [https://salesforce.quip.com/WPbbAiZrEx6r](https://salesforce.quip.com/WPbbAiZrEx6r)
