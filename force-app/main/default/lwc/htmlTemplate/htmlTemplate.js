@@ -2,6 +2,7 @@
 // All rights reserved.
 // SPDX-License-Identifier: BSD-3-Clause
 // For full license text, see the LICENSE file in the repo root or https://opensource.org/licenses/BSD-3-Clause
+import { LightningElement, api } from 'lwc';
 import template from './htmlTemplate.html';
 
 export default class HtmlTemplate extends LightningElement {
