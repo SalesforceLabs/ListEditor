@@ -7,9 +7,10 @@
        src="https://raw.githubusercontent.com/afawcett/githubsfdeploy/master/deploy.png">
 </a>
 
-## ⭐️ 詳細な設定マニュアルはコチラ ↓
+## 詳細な設定マニュアルはコチラ ↓
 日本語  
 [https://salesforce.quip.com/ysAYAmh31aTG](https://salesforce.quip.com/ysAYAmh31aTG)  
   
+## Click here for detailes setup manual
 English  
 [https://salesforce.quip.com/WPbbAiZrEx6r](https://salesforce.quip.com/WPbbAiZrEx6r)
