@@ -1,6 +1,6 @@
 # List Editor
 
-## Instoration
+## Installation
 
 <a href="https://githubsfdeploy.herokuapp.com?owner=SalesforceLabs&repo=ListEditor&ref=v1.11">
   <img alt="Deploy to Salesforce"
