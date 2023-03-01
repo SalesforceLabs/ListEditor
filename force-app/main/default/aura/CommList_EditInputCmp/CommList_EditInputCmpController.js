@@ -56,7 +56,14 @@
     let subType = component.get('v.subType');
 
     if (typeof event.currentTarget.type !== 'undefined') {
-      let valueChanged = event.currentTarget.value;
+      let valueChanged;
+
+      if (event.currentTarget.checked !== undefined) {
+        valueChanged = event.currentTarget.checked;
+      } else {
+        valueChanged = event.currentTarget.value;
+      }
+
       component.set('v.value', valueChanged);
     } else {
       let valueChanged = component.get('v.value');
