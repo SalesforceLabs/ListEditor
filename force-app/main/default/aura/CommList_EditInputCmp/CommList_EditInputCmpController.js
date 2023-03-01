@@ -58,7 +58,7 @@
     if (typeof event.currentTarget.type !== 'undefined') {
       let valueChanged;
 
-      if (event.currentTarget.checked !== undefined) {
+      if (event.currentTarget.type === 'checkbox') {
         valueChanged = event.currentTarget.checked;
       } else {
         valueChanged = event.currentTarget.value;
