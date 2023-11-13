@@ -85,7 +85,7 @@
                   />
                   <aura:set attribute="else">
                     <aura:if isTrue="{!v.subType == 'number'}">
-                      <div onkeydown="{!c.handleKeyUp }">
+                      <div onkeypress="{!c.handleKeyUp }">
                         <lightning:input
                           aura:id="myStandardInput"
                           class="{! and(empty(v.value), v.isRequired) ? v.inputClass + ' slds-has-error' : v.inputClass }"
